@@ -1,0 +1,29 @@
+- name: Ensure nftables is installed
+  ansible.builtin.package:
+    name: nftables
+    state: present
+
+- name: Ensure nftables is enabled and running
+  ansible.builtin.service:
+    name: nftables
+    enabled: true
+    state: started
+
+- name: Ensure nftables.d directory exists
+  ansible.builtin.file:
+    path: /etc/nftables.d
+    state: directory
+    mode: "0755"
+
+- name: Deploy k3s nftables rules
+  ansible.builtin.copy:
+    dest: /etc/nftables.d/90-k3s.nft
+    mode: "0644"
+    content: |
+      add rule inet filter input ip saddr {{ k3s_pod_network }} tcp dport 6443 accept
+      add rule inet filter input ip saddr {{ k3s_pod_network }} tcp dport 10250 accept
+      add rule inet filter forward ip saddr {{ k3s_pod_network }} accept
+      add rule inet filter forward ip daddr {{ k3s_pod_network }} accept
+      add rule inet filter input ip saddr {{ lan_network }} tcp dport 6443 accept
+      add rule inet filter input ip saddr {{ tailscale_network }} tcp dport 6443 accept
+  notify: reload nftables

@@ -1,0 +1,16 @@
+- name: Check if k3s is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_installed
+
+- name: Install k3s
+  ansible.builtin.shell: curl -sfL https://get.k3s.io | sh -
+  when: not k3s_installed.stat.exists
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Ensure k3s service is enabled and running
+  ansible.builtin.systemd_service:
+    name: k3s
+    enabled: true
+    state: started

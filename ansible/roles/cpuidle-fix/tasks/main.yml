@@ -1,0 +1,17 @@
+- name: Deploy cpuidle fix script
+  ansible.builtin.copy:
+    src: cpuidle-fix.sh
+    dest: /usr/local/bin/cpuidle-fix.sh
+    mode: "0755"
+
+- name: Apply cpuidle fix now
+  ansible.builtin.command: /usr/local/bin/cpuidle-fix.sh
+  register: cpuidle_fix
+  changed_when: cpuidle_fix.stdout | length > 0
+
+- name: Schedule cpuidle fix at boot
+  ansible.builtin.cron:
+    name: cpuidle-fix
+    user: root
+    special_time: reboot
+    job: "sleep 10 && /usr/local/bin/cpuidle-fix.sh"

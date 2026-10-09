@@ -1,0 +1,23 @@
+- name: Install base packages
+  hosts: all
+  become: true
+
+  roles:
+    - install-packages
+
+- name: Power fixes
+  hosts: xiaomi-whyred
+  become: true
+
+  roles:
+    - cpuidle-fix
+
+- name: Setup k3s nodes
+  hosts: k3s_nodes
+  become: true
+
+  roles:
+    - disable-swap
+    - cronjobs
+    - firewall
+#    - k3s
