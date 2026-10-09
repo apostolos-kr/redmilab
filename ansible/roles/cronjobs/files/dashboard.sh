@@ -3,6 +3,11 @@
 # Never writes to stdout/SSH - every write is redirected to /dev/tty1 and discarded elsewhere.
 
 TTY=/dev/tty1
+
+# Screen asleep -> do nothing at all
+BLANK="$(cat /sys/class/graphics/fb0/blank 2>/dev/null)"
+if [ "$BLANK" != 0 ]; then exit 0; fi
+
 setfont /usr/share/consolefonts/ter-v32n.psf.gz -C "$TTY" 2>/dev/null
 
 YELLOW='\033[1;33m'
