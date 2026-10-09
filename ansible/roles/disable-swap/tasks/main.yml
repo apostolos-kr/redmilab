@@ -1,0 +1,11 @@
+- name: Disable swapfile
+  ansible.builtin.service:
+    name: swapfile
+    enabled: false
+    state: stopped
+
+- name: Disable zram swap
+  ansible.builtin.service:
+    name: postmarketos-zram-swap
+    enabled: false
+    state: stopped

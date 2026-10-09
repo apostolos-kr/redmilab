@@ -1,0 +1,11 @@
+- name: Update package index
+  ansible.builtin.package:
+    update_cache: true
+
+- name: Install required packages
+  ansible.builtin.package:
+    name:
+      - curl
+      - ca-certificates
+      - nftables
+    state: present

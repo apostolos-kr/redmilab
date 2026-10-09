@@ -1,0 +1,31 @@
+- name: Deploy dashboard script
+  ansible.builtin.copy:
+    src: dashboard.sh
+    dest: /usr/local/bin/dashboard.sh
+    mode: "0755"
+
+- name: Deploy battery cycle script
+  ansible.builtin.copy:
+    src: battery-cycle.sh
+    dest: /usr/local/bin/battery-cycle.sh
+    mode: "0755"
+
+- name: Enable and start crond
+  ansible.builtin.service:
+    name: crond
+    enabled: true
+    state: started
+
+- name: Schedule dashboard script
+  ansible.builtin.cron:
+    name: dashboard
+    user: root
+    minute: "*"
+    job: /usr/local/bin/dashboard.sh
+
+- name: Schedule battery cycle script
+  ansible.builtin.cron:
+    name: battery-cycle
+    user: root
+    minute: "*/5"
+    job: /usr/local/bin/battery-cycle.sh
