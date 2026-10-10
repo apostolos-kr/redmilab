@@ -24,6 +24,14 @@ jobs:
           audience: api.tailscale.com/T97iqqzC1Y11CNTRL-kVangMo5sj11CNTRL
           tags: tag:ci
 
+      - name: Fetch secrets from Infisical
+        uses: Infisical/secrets-action@v1.0.18
+        with:
+          method: oidc
+          identity-id: a36fb0fd-d81c-4be7-b497-f1d164b103e3
+          project-slug: redmilab-k4s-u
+          env-slug: prod
+
       - name: Install Ansible
         run: pip install ansible
 
