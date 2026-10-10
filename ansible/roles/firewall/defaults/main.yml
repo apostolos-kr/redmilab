@@ -1,3 +1,4 @@
-k3s_pod_network: "10.42.0.0/16"
-lan_network: "192.168.1.0/24"
-tailscale_network: "100.64.0.0/10"
+---
+firewall_k3s_pod_network: "10.42.0.0/16"
+firewall_lan_network: "192.168.1.0/24"
+firewall_tailscale_network: "100.64.0.0/10"

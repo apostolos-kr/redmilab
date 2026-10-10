@@ -1,3 +1,4 @@
+---
 - name: Deploy dashboard script
   ansible.builtin.copy:
     src: dashboard.sh

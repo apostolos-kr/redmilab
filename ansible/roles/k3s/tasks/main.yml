@@ -1,3 +1,4 @@
+---
 - name: Check if k3s is already installed
   ansible.builtin.stat:
     path: /usr/local/bin/k3s
