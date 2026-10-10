@@ -1,7 +1,3 @@
-- name: Update package index
-  ansible.builtin.package:
-    update_cache: true
-
 - name: Install required packages
   ansible.builtin.package:
     name:
@@ -9,3 +5,4 @@
       - ca-certificates
       - nftables
     state: present
+    update_cache: true
