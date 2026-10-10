@@ -1,3 +1,4 @@
+---
 - name: Install base packages
   hosts: all
   become: true
