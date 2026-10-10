@@ -1,0 +1,77 @@
+---
+- name: Install PostgreSQL
+  ansible.builtin.package:
+    name:
+      - postgresql{{ postgresql_version }}
+      - postgresql{{ postgresql_version }}-client
+      - py3-psycopg2
+    state: present
+
+- name: Initialise the database cluster
+  ansible.builtin.command:
+    cmd: rc-service postgresql setup
+    creates: "{{ postgresql_data_dir }}/PG_VERSION"
+
+- name: Get this host's Tailscale IP
+  ansible.builtin.command: tailscale ip -4
+  register: postgresql_db_ip
+  changed_when: false
+
+- name: Get the k3s nodes' Tailscale IPs
+  ansible.builtin.command: tailscale ip -4
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['k3s_nodes'] }}"
+  register: postgresql_node_ips
+  changed_when: false
+
+- name: Listen on localhost and the Tailscale IP only
+  ansible.builtin.lineinfile:
+    path: "{{ postgresql_data_dir }}/postgresql.conf"
+    search_string: "listen_addresses ="
+    line: "listen_addresses = '127.0.0.1,{{ postgresql_db_ip.stdout }}'"
+  notify: Restart postgresql
+
+- name: Allow only the k3s nodes to connect
+  ansible.builtin.template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgresql_data_dir }}/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: "0600"
+  notify: Reload postgresql
+
+- name: Start Postgres after Tailscale
+  ansible.builtin.lineinfile:
+    path: /etc/conf.d/postgresql
+    search_string: "rc_need="
+    line: 'rc_need="tailscale"'
+
+- name: Enable and start Postgres
+  ansible.builtin.service:
+    name: postgresql
+    enabled: true
+    state: started
+
+- name: Apply pending restarts and reloads
+  ansible.builtin.meta: flush_handlers
+
+- name: DB password is set
+  ansible.builtin.assert:
+    that: postgresql_db_password | length > 0
+    quiet: true
+
+- name: Create the k3s database role
+  community.postgresql.postgresql_user:
+    name: "{{ postgresql_db_user }}"
+    password: "{{ postgresql_db_password }}"
+    encrypted: true
+  become: true
+  become_user: postgres
+  no_log: true
+
+- name: Create the k3s database
+  community.postgresql.postgresql_db:
+    name: "{{ postgresql_db }}"
+    owner: "{{ postgresql_db_user }}"
+  become: true
+  become_user: postgres

@@ -2,9 +2,6 @@ name: Deploy
 on:
   push:
     branches: [main]
-    paths:
-      - 'ansible/**'
-      - '.github/workflows/**'
 
 permissions:
   id-token: write
@@ -22,7 +19,7 @@ jobs:
         with:
           oauth-client-id: T97iqqzC1Y11CNTRL-kVangMo5sj11CNTRL
           audience: api.tailscale.com/T97iqqzC1Y11CNTRL-kVangMo5sj11CNTRL
-          tags: tag:ci
+          tags: tag:deploy
 
       - name: Fetch secrets from Infisical
         uses: Infisical/secrets-action@v1.0.18
