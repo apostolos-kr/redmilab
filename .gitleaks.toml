@@ -3,5 +3,4 @@ useDefault = true
 
 [allowlist]
 description = "Tailscale OAuth client ID is a public identifier, auth uses OIDC"
-paths = ['''(deploy|infra)\.yml''']
 regexes = ['''T97iqqzC1Y11CNTRL-kVangMo5sj11CNTRL''']
