@@ -1,0 +1,5 @@
+# Managed by Ansible
+local   all   postgres   peer
+{% for r in postgresql_node_ips.results %}
+host    {{ postgresql_db }}   {{ postgresql_db_user }}   {{ r.stdout }}/32   scram-sha-256
+{% endfor %}
