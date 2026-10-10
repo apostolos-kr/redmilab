@@ -1,3 +1,4 @@
+---
 - name: Ensure nftables is installed
   ansible.builtin.package:
     name: nftables
@@ -20,10 +21,10 @@
     dest: /etc/nftables.d/90-k3s.nft
     mode: "0644"
     content: |
-      add rule inet filter input ip saddr {{ k3s_pod_network }} tcp dport 6443 accept
-      add rule inet filter input ip saddr {{ k3s_pod_network }} tcp dport 10250 accept
-      add rule inet filter forward ip saddr {{ k3s_pod_network }} accept
-      add rule inet filter forward ip daddr {{ k3s_pod_network }} accept
-      add rule inet filter input ip saddr {{ lan_network }} tcp dport 6443 accept
-      add rule inet filter input ip saddr {{ tailscale_network }} tcp dport 6443 accept
-  notify: reload nftables
+      add rule inet filter input ip saddr {{ firewall_k3s_pod_network }} tcp dport 6443 accept
+      add rule inet filter input ip saddr {{ firewall_k3s_pod_network }} tcp dport 10250 accept
+      add rule inet filter forward ip saddr {{ firewall_k3s_pod_network }} accept
+      add rule inet filter forward ip daddr {{ firewall_k3s_pod_network }} accept
+      add rule inet filter input ip saddr {{ firewall_lan_network }} tcp dport 6443 accept
+      add rule inet filter input ip saddr {{ firewall_tailscale_network }} tcp dport 6443 accept
+  notify: Reload nftables
