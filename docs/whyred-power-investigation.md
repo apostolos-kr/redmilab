@@ -2,7 +2,7 @@
 
 Read-only investigation into why `xiaomi-whyred` (Redmi Note 5, sdm636, pmOS
 kernel `7.0.14-sdm660`) idles at ~670-700 mA / SoC 47-51 °C while
-`xiaomi-mido` (Mi A1, msm8953) stays at ~100-300 mA / 34-38 °C.
+`xiaomi-mido` (Redmi Note 4, Snapdragon 625 / MSM8953) stays at ~100-300 mA / 34-38 °C.
 
 All investigative data was gathered over SSH with strictly read-only commands
 (`cat`, `ls`, `grep`, `dmesg`, `od`, live sampling with `sleep` — no writes, no
