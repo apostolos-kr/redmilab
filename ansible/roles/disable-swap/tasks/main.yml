@@ -1,3 +1,4 @@
+---
 - name: Disable swapfile
   ansible.builtin.service:
     name: swapfile

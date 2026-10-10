@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Tailscale OAuth client ID is a public identifier, auth uses OIDC"
+regexes = ['''T97iqqzC1Y11CNTRL-kVangMo5sj11CNTRL''']

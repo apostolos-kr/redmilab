@@ -1,3 +1,4 @@
+---
 all:
   children:
     k3s_nodes:
