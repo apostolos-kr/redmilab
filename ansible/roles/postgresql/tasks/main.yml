@@ -10,7 +10,7 @@
 - name: Initialise the database cluster
   ansible.builtin.command:
     cmd: rc-service postgresql setup
-    creates: "{{ postgresql_data_dir }}/PG_VERSION"
+    creates: "/var/lib/postgresql/{{ postgresql_version }}/data/PG_VERSION"
 
 - name: Get this host's Tailscale IP
   ansible.builtin.command: tailscale ip -4
@@ -26,7 +26,7 @@
 
 - name: Listen on localhost and the Tailscale IP only
   ansible.builtin.lineinfile:
-    path: "{{ postgresql_data_dir }}/postgresql.conf"
+    path: /etc/postgresql/postgresql.conf
     search_string: "listen_addresses ="
     line: "listen_addresses = '127.0.0.1,{{ postgresql_db_ip.stdout }}'"
   notify: Restart postgresql
@@ -34,11 +34,16 @@
 - name: Allow only the k3s nodes to connect
   ansible.builtin.template:
     src: pg_hba.conf.j2
-    dest: "{{ postgresql_data_dir }}/pg_hba.conf"
+    dest: /etc/postgresql/pg_hba.conf
     owner: postgres
     group: postgres
     mode: "0600"
   notify: Reload postgresql
+
+- name: Remove shadow pg_hba.conf left in the data directory
+  ansible.builtin.file:
+    path: "/var/lib/postgresql/{{ postgresql_version }}/data/pg_hba.conf"
+    state: absent
 
 - name: Start Postgres after Tailscale
   ansible.builtin.lineinfile:
