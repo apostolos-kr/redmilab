@@ -97,8 +97,8 @@ Then add tags/settings in the Tailscale console.
 
 ## 3. Hand-off to Ansible
 
-Once the above is done, the rest is automated via `.github/workflows` + `ansible/playbook.yml`:
+Once the above is done, the rest is automated via `.github/workflows` + `ansible/site.yml`:
 
 ```sh
-ansible-playbook -i ansible/inventory.yml ansible/playbook.yml
+ansible-playbook -i ansible/inventory.yml ansible/site.yml
 ```

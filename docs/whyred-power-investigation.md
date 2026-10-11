@@ -159,7 +159,7 @@ Manual revert: write `0` back to the same files.
 
 **Since codified in Ansible** (2026-10-05): `ansible/roles/cpuidle-fix/files/cpuidle-fix.sh`
 disables states 1, 3, 4, and 5 on every CPU on `xiaomi-whyred`, both when
-Ansible applies the dedicated `cpuidle-fix` role (a playbook play restricted
+Ansible applies the dedicated `cpuidle-fix` role (a site play restricted
 to `hosts: xiaomi-whyred`, so mido can never reach these tasks) and at boot
 (`@reboot`). The fixed state indices
 match whyred's verified layout. WFI (state 0)

@@ -97,7 +97,7 @@ Target end state:
 
 - Ansible's job here is twofold: configure the machines (packages,
   services, firewall, cronjobs, device-specific fixes) and bootstrap
-  the entire k3s cluster. `playbook.yml` composes one role per concern.
+  the entire k3s cluster. `site.yml` composes one role per concern.
 - `pip install ansible` (community package) already bundles
   `community.general`; there is intentionally no `requirements.yml`.
 - `ansible-lint` runs on every PR (see CI below) and is the quality
@@ -113,10 +113,10 @@ Target end state:
 ## CI/CD (`.github/workflows/`)
 
 - `ci.yml` (on PRs):
-  - `lint` job: `ansible-lint playbook.yml` from `ansible/`.
+  - `lint` job: `ansible-lint site.yml` from `ansible/`.
   - `secrets` job: `gitleaks/gitleaks-action@v3`.
 - `deploy.yml` (on push to `main`): Tailscale connect
-  → Infisical OIDC secret fetch → `ansible-playbook playbook.yml`.
+  → Infisical OIDC secret fetch → `ansible-playbook site.yml`.
 - Conventions: Keep CI jobs read-only (no Tailscale, no secrets in
   `ci.yml`); only `deploy.yml` touches real infrastructure.
 
@@ -134,6 +134,11 @@ Target end state:
 - Tasks must be idempotent and lint-clean (`changed_when`, `creates:`,
   no bare `shell` pipes). If `ansible-lint` flags new code, fix the
   code, not the config — no `skip_list` without asking.
+- Scripts must do one simple thing for their known target hosts — no
+  defensive fallbacks or `if` guards for edge cases that cannot happen
+  in this setup (wrong host running the script, sysfs paths missing,
+  resorting to generic globs). If a new case ever arises in the future,
+  it can be handled then.
 - Workflows: minimal steps, least-privilege `permissions`.
   Prefer premade/official pieces over raw bash in both workflows and
   Ansible (published actions, real Ansible modules); raw `run:` /
@@ -148,4 +153,3 @@ Target end state:
 - If you must assume something (e.g. an undocumented OS detail or a
   default you couldn't verify), say so explicitly and mark what would
   confirm or refute it.
-
