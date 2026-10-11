@@ -24,4 +24,4 @@
     - disable-swap
     - cronjobs
     - firewall
-#    - k3s
+    - k3s
