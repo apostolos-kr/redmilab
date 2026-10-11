@@ -41,11 +41,6 @@
     mode: "0600"
   notify: Reload postgresql
 
-- name: Remove shadow pg_hba.conf left in the data directory
-  ansible.builtin.file:
-    path: "/var/lib/postgresql/{{ postgresql_version }}/data/pg_hba.conf"
-    state: absent
-
 - name: Start Postgres after Tailscale
   ansible.builtin.lineinfile:
     path: /etc/conf.d/postgresql
