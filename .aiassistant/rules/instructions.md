@@ -21,11 +21,11 @@ Target end state:
 
 ## Hardware
 
-| Host            | Device                                                                                | OS / userland                                                             |
-|-----------------|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| `xiaomi-whyred` | Redmi Note 5 (Snapdragon 636, sdm636), 4 GB RAM                                       | postmarketOS (Alpine-based, OpenRC)                                       |
-| `xiaomi-mido`   | Redmi Note 4 Snapdragon (Snapdragon 625 / MSM8953, 8× Cortex-A53 @ 2.0 GHz), 4 GB RAM | postmarketOS (Alpine-based, OpenRC)                                       |
-| `netbook`       | ASUS Eee PC (32-bit Intel Atom, 2 GB RAM, 256 GB SSD)                                 | Alpine Linux 32-bit (x86), OpenRC; escalates via `community.general.doas` |
+| Host            | Device                                                                                 | OS / userland                                                             |
+|-----------------|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| `xiaomi-whyred` | Redmi Note 5 (Snapdragon 636, sdm636), 4 GB RAM                                        | postmarketOS (Alpine-based, OpenRC)                                       |
+| `xiaomi-mido`   | Redmi Note 4X Snapdragon (Snapdragon 625 / MSM8953, 8× Cortex-A53 @ 2.0 GHz), 4 GB RAM | postmarketOS (Alpine-based, OpenRC)                                       |
+| `netbook`       | ASUS Eee PC (32-bit Intel Atom, 2 GB RAM, 256 GB SSD)                                  | Alpine Linux 32-bit (x86), OpenRC; escalates via `community.general.doas` |
 
 - The phones are the k3s nodes (`k3s_nodes` group). `whyred` additionally
   gets the `cpuidle-fix` role; do not apply whyred-specific workarounds
@@ -37,9 +37,8 @@ Target end state:
 - The netbook can never be a k3s node: k3s ships `x86_64`/`armhf`/`arm64`
   binaries only, no 32-bit x86. Cluster nodes are the two phones
   (both 64-bit ARM); the netbook is storage/datastore only.
-- Phones stay plugged in; battery longevity is managed by
-  `ansible/roles/cronjobs/files/battery-cycle.sh`, which cycles charging
-  between ~40–60 %. Do not "fix" charging behavior outside that script.
+- Phones stay plugged in; battery longevity is managed by capping the
+  charge voltage in each phone's device tree (`docs/battery-voltage-limit.md`).
 - Known hardware quirk, do not regress: whyred idles hot (~700 mA) due
   to a firmware/cpuidle defect; `ansible/roles/cpuidle-fix` disables the
   rejected idle states at boot and on apply. Full analysis in
