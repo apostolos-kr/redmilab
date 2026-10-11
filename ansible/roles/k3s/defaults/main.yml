@@ -1,0 +1,6 @@
+---
+k3s_version: "v1.36.5+k3s1"
+k3s_token: "{{ lookup('env', 'K3S_TOKEN') }}"
+k3s_db_password: "{{ lookup('env', 'K3S_DB_PASSWORD') }}"
+k3s_db_user: k3s
+k3s_db_name: k3s
