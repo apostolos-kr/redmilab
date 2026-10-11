@@ -103,6 +103,12 @@ Target end state:
 - `ansible-lint` runs on every PR (see CI below) and is the quality
   gate: new roles/tasks must be lint-clean. If the linter flags new
   code, fix the code, not the config — no `skip_list` without asking.
+- Alpine Postgres packaging quirk (verified Oct 2026): `setup` moves
+  configs to `/etc/postgresql/` (symlink to `postgresql<ver>/`) and
+  symlinks them back into the data dir. `lineinfile` follows those
+  links, but `template`/`copy` *replace* them with regular files the
+  server never reads — so manage Postgres configs at their `/etc`
+  paths directly, never via the data dir.
 
 ## CI/CD (`.github/workflows/`)
 
