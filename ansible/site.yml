@@ -1,10 +1,4 @@
 ---
-- name: Install base packages
-  hosts: all
-  become: true
-  roles:
-    - install-packages
-
 - name: Setup database
   hosts: storage
   become: true
@@ -21,6 +15,7 @@
   hosts: k3s_nodes
   become: true
   roles:
+    - phone-led
     - disable-swap
     - cronjobs
     - firewall

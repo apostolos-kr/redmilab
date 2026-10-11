@@ -18,7 +18,7 @@ jobs:
 
       - name: Run ansible-lint
         working-directory: ansible
-        run: ansible-lint playbook.yml
+        run: ansible-lint site.yml
 
   secrets:
     runs-on: ubuntu-latest

@@ -3,6 +3,7 @@
   ansible.builtin.package:
     name: nftables
     state: present
+    update_cache: true
 
 - name: Ensure nftables is enabled and running
   ansible.builtin.service:

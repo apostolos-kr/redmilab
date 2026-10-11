@@ -1,9 +1,0 @@
----
-- name: Install required packages
-  ansible.builtin.package:
-    name:
-      - curl
-      - ca-certificates
-      - nftables
-    state: present
-    update_cache: true
