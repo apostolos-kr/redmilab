@@ -26,8 +26,8 @@
 
 - name: Turn phone status LED on now
   ansible.builtin.command: /usr/local/bin/phone-led.sh
-  register: phone_led
-  changed_when: phone_led.stdout | length > 0
+  register: cronjobs_phone_led
+  changed_when: cronjobs_phone_led.stdout | length > 0
 
 - name: Schedule phone status LED at boot
   ansible.builtin.cron:
