@@ -1,5 +1,7 @@
 # Manual bootstrap
 
+(AI generated after manual troubleshooting)
+
 One-time manual steps run **before** handing hosts over to Ansible / GitHub CI/CD.
 Ansible assumes: user `admin` exists, passwordless privilege escalation works, host is on the network, and Tailscale (+ SSH) is up.
 
@@ -57,6 +59,17 @@ sudo tailscale up --ssh
 ```
 
 Then approve / set tags in the Tailscale admin console.
+
+### 1.6 Battery voltage cap
+
+Cap the charge voltage at 3.9 V per `battery-voltage-limit.md` (whyred:
+rebuild + flash `boot.img`; mido: replace the dtb in `/boot`), then verify:
+
+```sh
+cat /sys/class/power_supply/qcom-battery/voltage_max_design   # 3900000
+```
+
+Do this before the hand-off so the phones never sit at full voltage.
 
 ## 2. Netbook (`netbook`, Alpine, `doas`)
 

@@ -1,8 +1,10 @@
 # whyred idle power investigation
 
+(AI generated after manual troubleshooting)
+
 Read-only investigation into why `xiaomi-whyred` (Redmi Note 5, sdm636, pmOS
 kernel `7.0.14-sdm660`) idles at ~670-700 mA / SoC 47-51 °C while
-`xiaomi-mido` (Redmi Note 4, Snapdragon 625 / MSM8953) stays at ~100-300 mA / 34-38 °C.
+`xiaomi-mido` (Redmi Note 4X, Snapdragon 625 / MSM8953) stays at ~100-300 mA / 34-38 °C.
 
 All investigative data was gathered over SSH with strictly read-only commands
 (`cat`, `ls`, `grep`, `dmesg`, `od`, live sampling with `sleep` — no writes, no
@@ -224,13 +226,3 @@ sdm660-mainline/linux#33.
 - **Neither device has ever suspended** (`suspend_stats/success = 0`), so
   suspend behavior was ruled out as a factor (also: no wakeup storm — whyred
   ~60 irq/s).
-- **Battery cycle script works on mido:** logread shows
-  `Capacity 39% <= 40%, charging` → `Capacity 62% >= 60%, discharging`;
-  script at `ansible/roles/cronjobs/files/battery-cycle.sh` cycles 40-60 %.
-  Caveat: `input_current_limit` writes do not stick (reads back 700000,
-  not a previously written value); the `current_max` toggle is what actually
-  controls charging.
-- **PowerShell quote-stripping:** all remote SSH commands in this project must
-  avoid embedded double quotes (PS 5.1 strips them and the remote shell then
-  mangles pipes/parens). Use `''…''` inside a single-quoted PS string for
-  remote quoting.
