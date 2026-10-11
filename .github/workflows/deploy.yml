@@ -36,4 +36,4 @@ jobs:
         working-directory: ansible
         env:
           ANSIBLE_CONFIG: ansible.cfg
-        run: ansible-playbook playbook.yml
+        run: ansible-playbook site.yml

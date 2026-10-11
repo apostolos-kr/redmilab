@@ -6,6 +6,7 @@
       - postgresql{{ postgresql_version }}-client
       - py3-psycopg2
     state: present
+    update_cache: true
 
 - name: Initialise the database cluster
   ansible.builtin.command:

@@ -1,4 +1,12 @@
 ---
+- name: Install k3s download dependencies
+  ansible.builtin.package:
+    name:
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: true
+
 - name: Secrets are set
   ansible.builtin.assert:
     that:
