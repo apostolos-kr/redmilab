@@ -64,5 +64,9 @@
     state: started
 
 - name: Wait until this node is Ready
-  ansible.builtin.command: "/usr/local/bin/k3s kubectl wait --for=condition=Ready node/{{ ansible_facts['hostname'] }} --timeout=300s"
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl wait --for=condition=Ready node/{{ ansible_facts['hostname'] }} --timeout=60s"
+  register: k3s_ready
+  until: k3s_ready.rc == 0
+  retries: 5
+  delay: 30
   changed_when: false

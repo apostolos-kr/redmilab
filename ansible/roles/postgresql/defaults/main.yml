@@ -1,6 +1,5 @@
 ---
 postgresql_version: "17"
-postgresql_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/data"
 postgresql_db: k3s
 postgresql_db_user: k3s
 postgresql_db_password: "{{ lookup('env', 'K3S_DB_PASSWORD') }}"
