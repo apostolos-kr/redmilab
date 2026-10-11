@@ -6,7 +6,7 @@ TTY=/dev/tty1
 
 # Screen asleep -> do nothing at all
 BLANK="$(cat /sys/class/graphics/fb0/blank 2>/dev/null)"
-if [ "$BLANK" != 0 ]; then exit 0; fi
+if [ "$BLANK" != 0 ] && [ "$BLANK" != 4 ]; then exit 0; fi
 
 setfont /usr/share/consolefonts/ter-v32n.psf.gz -C "$TTY" 2>/dev/null
 
@@ -29,6 +29,7 @@ TEMP_C="$((TEMP_RAW / 10))"
 BATT_VOLTAGE="$(cat "$BATT/voltage_now" 2>/dev/null)"
 BATT_CURRENT="$(cat "$BATT/current_now" 2>/dev/null)"
 POWER_MW="$(( (BATT_VOLTAGE * BATT_CURRENT) / 1000000000 ))"
+VOLT_MV="$((BATT_VOLTAGE / 1000))"
 
 if [ "$TEMP_C" -gt 40 ] 2>/dev/null; then TEMP_COLOR="$ORANGE"; else TEMP_COLOR="$RESET"; fi
 
@@ -52,7 +53,7 @@ CPU_PCT=$((100 - CPU_IDLE))
     printf "${YELLOW}%-11s${RESET} %s\n" "WiFi:" "$WLAN_IP"
     printf "${YELLOW}%-11s${RESET} %s\n\n" "Tailscale:" "$TS_IP"
 
-    printf "${GREEN}%-11s${RESET} %s%%\n" "Battery:" "$CAPACITY"
+    printf "${GREEN}%-11s${RESET} %s mV (%s%%)\n" "Battery:" "$VOLT_MV" "$CAPACITY"
     printf "${GREEN}%-11s${RESET} %d mW\n" "Power:" "$POWER_MW"
     printf "${GREEN}%-11s${TEMP_COLOR} %s C\n\n" "Temp:" "$TEMP_C"
 
