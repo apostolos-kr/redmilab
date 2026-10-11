@@ -1,17 +1,68 @@
 ---
-- name: Check if k3s is already installed
-  ansible.builtin.stat:
-    path: /usr/local/bin/k3s
-  register: k3s_installed
+- name: Secrets are set
+  ansible.builtin.assert:
+    that:
+      - k3s_token | length > 0
+      - k3s_db_password | length > 0
+    quiet: true
+
+- name: Get this node's Tailscale IP
+  ansible.builtin.command: tailscale ip -4
+  register: k3s_node_ip
+  changed_when: false
+
+- name: Get the datastore's Tailscale IP
+  ansible.builtin.command: tailscale ip -4
+  delegate_to: netbook
+  register: k3s_db_ip
+  changed_when: false
+
+- name: Download the pinned k3s install script
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/k3s-io/k3s/{{ k3s_version }}/install.sh"
+    dest: /tmp/k3s-install.sh
+    mode: "0700"
 
 - name: Install k3s
-  ansible.builtin.shell: curl -sfL https://get.k3s.io | sh -
-  when: not k3s_installed.stat.exists
-  args:
+  ansible.builtin.command:
+    cmd: sh /tmp/k3s-install.sh
     creates: /usr/local/bin/k3s
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    INSTALL_K3S_SKIP_START: "true"
+  notify: Restart k3s
 
-- name: Ensure k3s service is enabled and running
-  ansible.builtin.systemd_service:
+- name: Check host prerequisites for k3s
+  ansible.builtin.command: /usr/local/bin/k3s check-config
+  register: k3s_check_config
+  changed_when: false
+
+- name: Write the k3s config
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
+    mode: "0600"
+  no_log: true
+  diff: false
+  notify: Restart k3s
+
+- name: Start k3s after Tailscale
+  ansible.builtin.lineinfile:
+    path: /etc/conf.d/k3s
+    search_string: "rc_need="
+    line: 'rc_need="tailscale"'
+    create: true
+    mode: "0644"
+
+- name: Apply a pending restart
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start k3s
+  ansible.builtin.service:
     name: k3s
     enabled: true
     state: started
+
+- name: Wait until this node is Ready
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl wait --for=condition=Ready node/{{ ansible_facts['hostname'] }} --timeout=300s"
+  changed_when: false
