@@ -133,11 +133,12 @@ Target end state:
 - Tasks must be idempotent and lint-clean (`changed_when`, `creates:`,
   no bare `shell` pipes). If `ansible-lint` flags new code, fix the
   code, not the config — no `skip_list` without asking.
-- Scripts must do one simple thing for their known target hosts — no
-  defensive fallbacks or `if` guards for edge cases that cannot happen
-  in this setup (wrong host running the script, sysfs paths missing,
-  resorting to generic globs). If a new case ever arises in the future,
-  it can be handled then.
+- Scripts must do one simple thing for their known target hosts — **STRICTLY
+  NO defensive fallbacks or `if` guards for edge cases that cannot happen
+  in this setup** (wrong host running the script, sysfs paths missing,
+  resorting to generic globs). This is a hard rule, not a suggestion.
+  Single code path only. DO NOT add code based on the assumption that something
+  might change in the future and try to be futureproof.
 - Workflows: minimal steps, least-privilege `permissions`.
   Prefer premade/official pieces over raw bash in both workflows and
   Ansible (published actions, real Ansible modules); raw `run:` /
