@@ -53,7 +53,7 @@ Target end state:
 - `firewall` role opens TCP 6443 (k8s API) to the pod network
   (`10.42.0.0/16`), LAN (`192.168.1.0/24`), and tailnet only.
 - Ansible connects as `admin` over Tailscale hostnames
-  (`ansible/inventory.yml`); netbook escalates via
+  (`ansible/inventory.yaml`); netbook escalates via
   `community.general.doas`.
 
 ## Change management: CI owns the machines
@@ -85,7 +85,7 @@ Target end state:
 - Avoid creating new secrets at all — prefer flows that need no stored
    credential (OIDC, Tailscale ACL tags like `tag:deploy`).
 - The Tailscale OAuth client ID and Infisical identity ID in
-  `.github/workflows/deploy.yml` are **public identifiers, not
+  `.github/workflows/deploy.yaml` are **public identifiers, not
   secrets** (auth comes from OIDC). They are allowlisted in
   `.gitleaks.toml` by exact value — do not "fix" by deleting them, and
   do not broaden that allowlist to whole files.
@@ -96,9 +96,9 @@ Target end state:
 
 - Ansible's job here is twofold: configure the machines (packages,
   services, firewall, cronjobs, device-specific fixes) and bootstrap
-  the entire k3s cluster. `site.yml` composes one role per concern.
+  the entire k3s cluster. `site.yaml` composes one role per concern.
 - `pip install ansible` (community package) already bundles
-  `community.general`; there is intentionally no `requirements.yml`.
+  `community.general`; there is intentionally no `requirements.yaml`.
 - `ansible-lint` runs on every PR (see CI below) and is the quality
   gate: new roles/tasks must be lint-clean. If the linter flags new
   code, fix the code, not the config — no `skip_list` without asking.
@@ -111,13 +111,13 @@ Target end state:
 
 ## CI/CD (`.github/workflows/`)
 
-- `ci.yml` (on PRs):
-  - `lint` job: `ansible-lint site.yml` from `ansible/`.
+- `ci.yaml` (on PRs):
+  - `lint` job: `ansible-lint site.yaml` from `ansible/`.
   - `secrets` job: `gitleaks/gitleaks-action@v3`.
-- `deploy.yml` (on push to `main`): Tailscale connect
-  → Infisical OIDC secret fetch → `ansible-playbook site.yml`.
+- `deploy.yaml` (on push to `main`): Tailscale connect
+  → Infisical OIDC secret fetch → `ansible-playbook site.yaml`.
 - Conventions: Keep CI jobs read-only (no Tailscale, no secrets in
-  `ci.yml`); only `deploy.yml` touches real infrastructure.
+  `ci.yaml`); only `deploy.yaml` touches real infrastructure.
 
 ## Code preferences
 
