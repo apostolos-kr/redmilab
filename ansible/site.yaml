@@ -18,3 +18,9 @@
     - cronjobs
     - firewall
     - k3s
+
+- name: Setup Argo CD
+  hosts: k3s_nodes[0]
+  become: true
+  roles:
+    - argocd

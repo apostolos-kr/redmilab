@@ -1,0 +1,28 @@
+---
+- name: Check whether Argo CD is already installed
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n argocd get statefulset argocd-application-controller
+  register: argocd_installed
+  changed_when: false
+  failed_when: false
+
+- name: Copy the Argo CD manifests to the node
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../k3s/argocd/"
+    dest: "/tmp/argocd"
+    mode: "0644"
+    directory_mode: "0755"
+  when: argocd_installed.rc != 0
+
+- name: Install Argo CD Core
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl apply --server-side --force-conflicts -k /tmp/argocd"
+  changed_when: true
+  when: argocd_installed.rc != 0
+
+- name: Wait until Argo CD is ready
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd rollout status {{ item }} --timeout=600s"
+  loop:
+    - statefulset/argocd-application-controller
+    - deployment/argocd-repo-server
+    - deployment/argocd-applicationset-controller
+    - deployment/argocd-redis
+  changed_when: false

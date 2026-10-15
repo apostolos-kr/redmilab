@@ -1,4 +1,4 @@
-name: CI
+name: ci
 on:
   pull_request:
     branches: [main]
@@ -18,7 +18,7 @@ jobs:
 
       - name: Run ansible-lint
         working-directory: ansible
-        run: ansible-lint site.yml
+        run: ansible-lint site.yaml
 
   secrets:
     runs-on: ubuntu-latest
