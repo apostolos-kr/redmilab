@@ -82,7 +82,7 @@ doas -C /etc/doas.d/admin.conf   # verify config
 doas id                          # verify no password prompt
 ```
 
-Ansible uses `ansible_become_method: community.general.doas` for this host (see `ansible/inventory.yml`).
+Ansible uses `ansible_become_method: community.general.doas` for this host (see `ansible/inventory.yaml`).
 
 ### 2.2 Community repos + python3
 
@@ -110,8 +110,8 @@ Then add tags/settings in the Tailscale console.
 
 ## 3. Hand-off to Ansible
 
-Once the above is done, the rest is automated via `.github/workflows` + `ansible/site.yml`:
+Once the above is done, the rest is automated via `.github/workflows` + `ansible/site.yaml`:
 
 ```sh
-ansible-playbook -i ansible/inventory.yml ansible/site.yml
+ansible-playbook -i ansible/inventory.yaml ansible/site.yaml
 ```
