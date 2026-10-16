@@ -43,16 +43,6 @@
         - deployment/argocd-redis
       changed_when: false
 
-    - name: Copy the default AppProject manifest
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../k3s/bootstrap/default-project.yaml"
-        dest: /tmp/default-project.yaml
-        mode: "0644"
-
-    - name: Apply the default AppProject
-      ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f /tmp/default-project.yaml
-      changed_when: true
-
     - name: Copy the root Application manifest
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../k3s/bootstrap/root.yaml"
@@ -64,5 +54,5 @@
       changed_when: true
 
     - name: Wait until the root Application is synced
-      ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd wait --for=jsonpath='{.status.sync.status}'=Synced application/root --timeout=300s"
+      ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd wait --for=jsonpath={.status.sync.status}=Synced application/root --timeout=300s"
       changed_when: false
