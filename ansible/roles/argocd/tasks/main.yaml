@@ -7,14 +7,14 @@
 
 - name: Copy the Argo CD manifests to the node
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../k3s/argocd/"
-    dest: "/tmp/argocd"
+    src: "{{ playbook_dir }}/../k3s/apps/argocd/"
+    dest: /tmp/argocd/
     mode: "0644"
     directory_mode: "0755"
   when: argocd_installed.rc != 0
 
 - name: Install Argo CD Core
-  ansible.builtin.command: "/usr/local/bin/k3s kubectl apply --server-side --force-conflicts -k /tmp/argocd"
+  ansible.builtin.command: /usr/local/bin/k3s kubectl apply --server-side --force-conflicts -k /tmp/argocd
   changed_when: true
   when: argocd_installed.rc != 0
 
@@ -26,3 +26,26 @@
     - deployment/argocd-applicationset-controller
     - deployment/argocd-redis
   changed_when: false
+
+- name: Check whether the root Application exists
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n argocd get application root
+  register: argocd_root
+  changed_when: false
+  failed_when: false
+
+- name: Copy the root Application manifest to the node
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../k3s/bootstrap/root.yaml"
+    dest: /tmp/root.yaml
+    mode: "0644"
+  when: argocd_root.rc != 0
+
+- name: Apply the root Application
+  ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f /tmp/root.yaml
+  changed_when: true
+  when: argocd_root.rc != 0
+
+- name: Wait until the root Application is synced
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd wait --for=jsonpath='{.status.sync.status}'=Synced application/root --timeout=300s"
+  changed_when: false
+  when: argocd_root.rc != 0
