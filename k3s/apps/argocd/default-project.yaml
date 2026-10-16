@@ -1,0 +1,22 @@
+---
+# The `default` AppProject is normally shipped with the full Argo CD
+# install, but NOT with core-install.yaml. The bootstrap Applications
+# (k3s/bootstrap) reference `project: default`, so without this the
+# controller rejects them with `InvalidSpecError`
+# (Application referencing project default which does not exist).
+# Mirrors upstream's permissive default project.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: argocd
+spec:
+  description: Default project
+  sourceRepos:
+    - https://github.com/apostolos-kr/redmilab.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
