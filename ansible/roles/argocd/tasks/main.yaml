@@ -46,6 +46,5 @@
   when: argocd_root.rc != 0
 
 - name: Wait until the root Application is synced
-  ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd wait --for=jsonpath='{.status.sync.status}'=Synced application/root --timeout=300s"
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd wait --for=jsonpath={.status.sync.status}=Synced application/root --timeout=300s"
   changed_when: false
-  when: argocd_root.rc != 0
