@@ -73,7 +73,7 @@
       metadata:
         name: external-secrets
   register: argocd_external_secrets_namespace
-  changed_when: "'created' in argocd_external_secrets_namespace.stdout or 'configured' in argocd_external_secrets_namespace.stdout"
+  changed_when: "'unchanged' not in argocd_external_secrets_namespace.stdout"
 
 - name: Apply Infisical credentials
   ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f -
@@ -85,9 +85,9 @@
         name: infisical-universal-auth
         namespace: external-secrets
       type: Opaque
-      stringData:
-        clientId: {{ argocd_infisical_client_id | to_json }}
-        clientSecret: {{ argocd_infisical_client_secret | to_json }}
+      data:
+        clientId: {{ argocd_infisical_client_id | b64encode | to_json }}
+        clientSecret: {{ argocd_infisical_client_secret | b64encode | to_json }}
   register: argocd_infisical_secret
-  changed_when: "'created' in argocd_infisical_secret.stdout or 'configured' in argocd_infisical_secret.stdout"
+  changed_when: "'unchanged' not in argocd_infisical_secret.stdout"
   no_log: true
