@@ -56,3 +56,38 @@
     - name: Wait until the root Application is synced
       ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd wait --for=jsonpath={.status.sync.status}=Synced application/root --timeout=300s"
       changed_when: false
+
+- name: Check that Infisical credentials are provided
+  ansible.builtin.assert:
+    that:
+      - argocd_infisical_client_id | length > 0
+      - argocd_infisical_client_secret | length > 0
+    quiet: true
+
+- name: Ensure the External Secrets namespace exists
+  ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f -
+  args:
+    stdin: |
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: external-secrets
+  register: argocd_external_secrets_namespace
+  changed_when: "'created' in argocd_external_secrets_namespace.stdout or 'configured' in argocd_external_secrets_namespace.stdout"
+
+- name: Apply Infisical credentials
+  ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f -
+  args:
+    stdin: |
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: infisical-universal-auth
+        namespace: external-secrets
+      type: Opaque
+      stringData:
+        clientId: {{ argocd_infisical_client_id | to_json }}
+        clientSecret: {{ argocd_infisical_client_secret | to_json }}
+  register: argocd_infisical_secret
+  changed_when: "'created' in argocd_infisical_secret.stdout or 'configured' in argocd_infisical_secret.stdout"
+  no_log: true
