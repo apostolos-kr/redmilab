@@ -1,0 +1,3 @@
+---
+infisical_client_id: "{{ lookup('env', 'INFISICAL_CLIENT_ID') }}"
+infisical_client_secret: "{{ lookup('env', 'INFISICAL_CLIENT_SECRET') }}"
