@@ -7,10 +7,10 @@ metadata:
 spec:
   description: Default project
   sourceRepos:
-    - "*"
+    - '*'
   destinations:
-    - server: https://kubernetes.default.svc
-      namespace: "*"
+    - server: '*'
+      namespace: '*'
   clusterResourceWhitelist:
-    - group: "*"
-      kind: "*"
+    - group: '*'
+      kind: '*'
