@@ -30,8 +30,7 @@ jobs:
           kubeconform-version: '0.8.0'
 
       - name: Validate Kubernetes manifests
-        run: kubeconform -strict -summary -ignore-missing-schemas \
-          -kubernetes-version 1.36.5 -ignore-filename-pattern 'values\.yaml$'
+        run: kubeconform -strict -summary -ignore-missing-schemas -kubernetes-version 1.36.5 -ignore-filename-pattern 'values\.yaml$'
 
   secrets:
     runs-on: ubuntu-latest
