@@ -1,62 +1,4 @@
 ---
-- name: Check whether Argo CD Core is installed
-  ansible.builtin.command: /usr/local/bin/k3s kubectl -n argocd get statefulset argocd-application-controller -o name --ignore-not-found
-  register: argocd_controller
-  changed_when: false
-  failed_when: false
-
-- name: Check whether the default AppProject exists
-  ansible.builtin.command: /usr/local/bin/k3s kubectl -n argocd get appproject default -o name --ignore-not-found
-  register: argocd_project
-  changed_when: false
-  failed_when: false
-
-- name: Check whether the root Application exists
-  ansible.builtin.command: /usr/local/bin/k3s kubectl -n argocd get application root -o name --ignore-not-found
-  register: argocd_root
-  changed_when: false
-  failed_when: false
-
-- name: Bootstrap Argo CD if any resource is missing
-  when: >-
-    argocd_controller.stdout | trim == '' or
-    argocd_project.stdout | trim == '' or
-    argocd_root.stdout | trim == ''
-  block:
-    - name: Copy Argo CD manifests
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../k3s/apps/argocd/"
-        dest: /tmp/argocd/
-        mode: "0644"
-        directory_mode: "0755"
-
-    - name: Apply Argo CD Core
-      ansible.builtin.command: /usr/local/bin/k3s kubectl apply --server-side --force-conflicts -k /tmp/argocd
-      changed_when: true
-
-    - name: Wait until Argo CD is ready
-      ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd rollout status {{ item }} --timeout=600s"
-      loop:
-        - statefulset/argocd-application-controller
-        - deployment/argocd-repo-server
-        - deployment/argocd-applicationset-controller
-        - deployment/argocd-redis
-      changed_when: false
-
-    - name: Copy the root Application manifest
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../k3s/bootstrap/root.yaml"
-        dest: /tmp/root.yaml
-        mode: "0644"
-
-    - name: Apply the root Application
-      ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f /tmp/root.yaml
-      changed_when: true
-
-    - name: Wait until the root Application is synced
-      ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd wait --for=jsonpath={.status.sync.status}=Synced application/root --timeout=300s"
-      changed_when: false
-
 - name: Check that Infisical credentials are provided
   ansible.builtin.assert:
     that:
@@ -64,16 +6,19 @@
       - argocd_infisical_client_secret | length > 0
     quiet: true
 
-- name: Ensure the External Secrets namespace exists
+- name: Ensure namespaces exist
   ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f -
   args:
     stdin: |
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: external-secrets
-  register: argocd_external_secrets_namespace
-  changed_when: "'unchanged' not in argocd_external_secrets_namespace.stdout"
+        name: {{ item }}
+  loop:
+    - argocd
+    - external-secrets
+  register: argocd_namespaces
+  changed_when: "'unchanged' not in argocd_namespaces.stdout"
 
 - name: Apply Infisical credentials
   ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f -
@@ -91,3 +36,59 @@
   register: argocd_infisical_secret
   changed_when: "'unchanged' not in argocd_infisical_secret.stdout"
   no_log: true
+
+- name: Check whether Argo CD Core is installed
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n argocd get statefulset argocd-application-controller -o name --ignore-not-found
+  register: argocd_controller
+  changed_when: false
+  failed_when: false
+
+- name: Check whether the default AppProject exists
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n argocd get appproject default -o name --ignore-not-found
+  register: argocd_project
+  changed_when: false
+  failed_when: false
+
+- name: Check whether the services ApplicationSet exists
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n argocd get applicationset services -o name --ignore-not-found
+  register: argocd_appset
+  changed_when: false
+  failed_when: false
+
+- name: Bootstrap Argo CD if any resource is missing
+  when: >-
+    argocd_controller.stdout | trim == '' or
+    argocd_project.stdout | trim == '' or
+    argocd_appset.stdout | trim == ''
+  block:
+    - name: Copy Argo CD manifests
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../k3s/argocd/"
+        dest: /tmp/argocd/
+        mode: "0644"
+        directory_mode: "0755"
+
+    - name: Apply Argo CD Core, project and ApplicationSet
+      ansible.builtin.command: /usr/local/bin/k3s kubectl apply --server-side --force-conflicts -k /tmp/argocd
+      register: argocd_apply
+      until: argocd_apply.rc == 0
+      retries: 5
+      delay: 10
+      changed_when: true
+
+    - name: Wait until Argo CD is ready
+      ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd rollout status {{ item }} --timeout=600s"
+      loop:
+        - statefulset/argocd-application-controller
+        - deployment/argocd-repo-server
+        - deployment/argocd-applicationset-controller
+        - deployment/argocd-redis
+      changed_when: false
+
+    - name: Wait until Argo CD manages itself
+      ansible.builtin.command: "/usr/local/bin/k3s kubectl -n argocd wait --for=jsonpath={.status.sync.status}=Synced application/argocd --timeout=30s"
+      register: argocd_self
+      until: argocd_self.rc == 0
+      retries: 20
+      delay: 15
+      changed_when: false
