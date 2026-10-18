@@ -1,3 +1,6 @@
 ---
 operatorConfig:
-  hostname: k3s-operator
+  defaultTags:
+    - "tag:k3s-operator"
+proxyConfig:
+  defaultTags: "tag:k3s"
