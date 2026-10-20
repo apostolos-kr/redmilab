@@ -18,15 +18,15 @@ spec:
           image: busybox:1.37
           command: ["sh", "-c", "cp /seed/AdGuardHome.yaml /conf/AdGuardHome.yaml"]
           volumeMounts:
-            - { name: seed, mountPath: /seed }
-            - { name: conf, mountPath: /conf }
+            - {name: seed, mountPath: /seed}
+            - {name: conf, mountPath: /conf}
       containers:
         - name: adguard-home
           image: adguard/adguardhome:v0.107.79
           ports:
-            - { name: dns-udp, containerPort: 53, protocol: UDP }
-            - { name: dns-tcp, containerPort: 53, protocol: TCP }
-            - { name: http, containerPort: 3000, protocol: TCP }
+            - {name: dns-udp, containerPort: 53, protocol: UDP}
+            - {name: dns-tcp, containerPort: 53, protocol: TCP}
+            - {name: http, containerPort: 3000, protocol: TCP}
           readinessProbe:
             tcpSocket:
               port: 53
@@ -37,8 +37,8 @@ spec:
             periodSeconds: 30
             failureThreshold: 3
           volumeMounts:
-            - { name: conf, mountPath: /opt/adguardhome/conf }
-            - { name: work, mountPath: /opt/adguardhome/work }
+            - {name: conf, mountPath: /opt/adguardhome/conf}
+            - {name: work, mountPath: /opt/adguardhome/work}
       volumes:
         - name: seed
           configMap:

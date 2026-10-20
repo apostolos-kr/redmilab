@@ -10,5 +10,5 @@ spec:
   selector:
     app: adguard-home
   ports:
-    - { name: dns-udp, port: 53, protocol: UDP }
-    - { name: dns-tcp, port: 53, protocol: TCP }
+    - {name: dns-udp, port: 53, protocol: UDP}
+    - {name: dns-tcp, port: 53, protocol: TCP}
