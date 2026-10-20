@@ -1,0 +1,26 @@
+---
+http:
+  address: 0.0.0.0:3000
+users: []
+
+dns:
+  bind_hosts:
+    - 0.0.0.0
+  ratelimit: 0
+  upstream_dns:
+    - https://cloudflare-dns.com/dns-query
+
+querylog:
+  interval: 2160h
+  size_memory: 1000
+
+statistics:
+  interval: 2160h
+
+filters:
+  - enabled: true
+    url: https://big.oisd.nl
+    name: OISD Big
+    id: 2
+
+schema_version: 34
