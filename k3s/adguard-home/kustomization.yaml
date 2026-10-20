@@ -1,0 +1,15 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: adguard-home
+
+resources:
+  - deployment.yaml
+  - service-dns.yaml
+  - service-ui.yaml
+  - ingress.yaml
+
+configMapGenerator:
+  - name: adguard-config
+    files:
+      - AdGuardHome.yaml
