@@ -31,6 +31,16 @@
   register: k3s_node_ip
   changed_when: false
 
+- name: Check Tailscale accept-dns setting
+  ansible.builtin.command: tailscale get accept-dns
+  register: k3s_tailscale_accept_dns
+  changed_when: false
+
+- name: Disable Tailscale accept-dns
+  ansible.builtin.command: tailscale set --accept-dns=false
+  when: "'true' in k3s_tailscale_accept_dns.stdout"
+  changed_when: true
+
 - name: Get the datastore's Tailscale IP
   ansible.builtin.command: tailscale ip -4
   delegate_to: netbook

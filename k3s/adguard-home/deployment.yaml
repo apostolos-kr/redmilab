@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adguard-home
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adguard-home
+  template:
+    metadata:
+      labels:
+        app: adguard-home
+    spec:
+      initContainers:
+        - name: seed-config
+          image: busybox:1.37
+          command: ["sh", "-c", "cp /seed/AdGuardHome.yaml /conf/AdGuardHome.yaml"]
+          volumeMounts:
+            - {name: seed, mountPath: /seed}
+            - {name: conf, mountPath: /conf}
+      containers:
+        - name: adguard-home
+          image: adguard/adguardhome:v0.107.79
+          ports:
+            - {name: dns-udp, containerPort: 53, protocol: UDP}
+            - {name: dns-tcp, containerPort: 53, protocol: TCP}
+            - {name: http, containerPort: 3000, protocol: TCP}
+          readinessProbe:
+            tcpSocket:
+              port: 53
+          livenessProbe:
+            tcpSocket:
+              port: 53
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+          volumeMounts:
+            - {name: conf, mountPath: /opt/adguardhome/conf}
+            - {name: work, mountPath: /opt/adguardhome/work}
+      volumes:
+        - name: seed
+          configMap:
+            name: adguard-config
+        - name: conf
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Mi
+        - name: work
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
