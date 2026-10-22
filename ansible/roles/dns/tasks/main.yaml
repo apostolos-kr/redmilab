@@ -15,4 +15,3 @@
   when: >-
     '"CorpDNS": true' in dns_prefs.stdout
   changed_when: true
-
