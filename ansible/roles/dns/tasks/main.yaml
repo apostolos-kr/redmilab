@@ -4,6 +4,15 @@
   register: dns_prefs
   changed_when: false
 
+- name: Set static upstream DNS for resolvconf
+  ansible.builtin.lineinfile:
+    path: /etc/resolvconf.conf
+    search_string: name_servers=
+    line: name_servers='1.1.1.1'
+    create: true
+    mode: "0644"
+  register: dns_resolvconf_conf
+
 - name: Disable Tailscale accept-dns
   ansible.builtin.command: tailscale set --accept-dns=false
   when: >-
@@ -13,5 +22,6 @@
 - name: Rebuild resolv.conf from the system resolvers
   ansible.builtin.command: resolvconf -u
   when: >-
-    '"CorpDNS": true' in dns_prefs.stdout
+    '"CorpDNS": true' in dns_prefs.stdout or
+    dns_resolvconf_conf is changed
   changed_when: true
