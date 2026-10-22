@@ -1,15 +1,17 @@
 ---
-- name: Check Tailscale accept-dns setting
-  ansible.builtin.command: tailscale get accept-dns
-  register: dns_tailscale
+- name: Read Tailscale preferences
+  ansible.builtin.command: tailscale debug prefs
+  register: dns_prefs
   changed_when: false
 
 - name: Disable Tailscale accept-dns
   ansible.builtin.command: tailscale set --accept-dns=false
-  when: "'true' in dns_tailscale.stdout"
+  when: >-
+    '"CorpDNS": true' in dns_prefs.stdout
   changed_when: true
 
-- name: Rebuild resolv.conf
+- name: Rebuild resolv.conf from the system resolvers
   ansible.builtin.command: resolvconf -u
-  when: "'true' in dns_tailscale.stdout"
+  when: >-
+    '"CorpDNS": true' in dns_prefs.stdout
   changed_when: true
