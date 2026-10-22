@@ -1,4 +1,10 @@
 ---
+- name: Configure DNS
+  hosts: all
+  become: true
+  roles:
+    - dns
+
 - name: Setup database
   hosts: storage
   become: true
