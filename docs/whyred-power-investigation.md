@@ -1,7 +1,5 @@
 # whyred idle power investigation
 
-(AI generated after manual troubleshooting)
-
 Read-only investigation into why `xiaomi-whyred` (Redmi Note 5, sdm636, pmOS
 kernel `7.0.14-sdm660`) idles at ~670-700 mA / SoC 47-51 °C while
 `xiaomi-mido` (Redmi Note 4X, Snapdragon 625 / MSM8953) stays at ~100-300 mA / 34-38 °C.
