@@ -32,6 +32,7 @@ jobs:
           oauth-client-id: T97iqqzC1Y11CNTRL-kVangMo5sj11CNTRL
           audience: api.tailscale.com/T97iqqzC1Y11CNTRL-kVangMo5sj11CNTRL
           tags: tag:deploy
+          args: --accept-dns=false
 
       - name: Run Ansible playbook
         working-directory: ansible
