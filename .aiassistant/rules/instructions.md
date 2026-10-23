@@ -2,6 +2,10 @@
 apply: always
 ---
 
+---
+apply: always
+---
+
 # redmilab — instructions
 
 ## Purpose
@@ -15,7 +19,7 @@ Target end state:
 - k3s cluster across the phones with an **external datastore** (not
   embedded etcd/sqlite), so the control plane is decoupled from any
   single node.
-- Full GitOps on the cluster with **Flux CD**; cluster secrets managed
+- Full GitOps on the cluster with **Argo CD**; cluster secrets managed
   by **External Secrets Operator (ESO) backed by Infisical**.
 - **Tailscale Kubernetes operator** hosted in the cluster.
 
@@ -24,7 +28,7 @@ Target end state:
 | Host            | Device                                                                                 | OS / userland                                                             |
 |-----------------|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
 | `xiaomi-whyred` | Redmi Note 5 (Snapdragon 636, sdm636), 4 GB RAM                                        | postmarketOS (Alpine-based, OpenRC)                                       |
-| `xiaomi-mido`   | Redmi Note 4X Snapdragon (Snapdragon 625 / MSM8953, 8× Cortex-A53 @ 2.0 GHz), 4 GB RAM | postmarketOS (Alpine-based, OpenRC)                                       |
+| `xiaomi-mido`   | Redmi Note 4X (Snapdragon 625 / MSM8953, 8× Cortex-A53 @ 2.0 GHz), 4 GB RAM            | postmarketOS (Alpine-based, OpenRC)                                       |
 | `netbook`       | ASUS Eee PC (32-bit Intel Atom, 2 GB RAM, 256 GB SSD)                                  | Alpine Linux 32-bit (x86), OpenRC; escalates via `community.general.doas` |
 
 - The phones are the k3s nodes (`k3s_nodes` group). `whyred` additionally
@@ -49,14 +53,18 @@ Target end state:
 - All hosts are on a Tailscale tailnet: `*.tailba091b.ts.net`,
   CGNAT range `100.64.0.0/10` (see `firewall` role defaults).
 - There is no public inbound and no static IPs — every integration
-  (CI, SSH, future k8s API access) goes over Tailscale.
-- `firewall` role opens TCP 6443 (k8s API) to the pod network
-  (`10.42.0.0/16`), LAN (`192.168.1.0/24`), and tailnet only.
-- Ansible connects as `admin` over Tailscale hostnames
-  (`ansible/inventory.yaml`); netbook escalates via
-  `community.general.doas`.
+  (deploy workflow, SSH, k8s API access) goes over Tailscale. In-cluster
+  services are exposed to the tailnet by the Tailscale Kubernetes
+  operator (ingress, service exposure, API server proxy).
+- `firewall` role (k3s nodes only) opens, via nftables: TCP 6443 (k8s API)
+  and 10250 (kubelet) to the pod network (`10.42.0.0/16`) and to the
+  tailnet, UDP 8472 (flannel VXLAN) to the tailnet, and pod-network
+  forwarding. There is no LAN rule.
+- Ansible connects as `admin` to Tailscale IPs resolved from the host
+  names (`tailscale ip` lookup in `ansible/inventory.yaml`); netbook
+  escalates via `community.general.doas`.
 
-## Change management: CI owns the machines
+## Change management: the Deploy workflow owns the machines
 
 - **Do not change machine configuration over ad-hoc SSH.** All writes
   go through the `Deploy` workflow (merge to `main`).
@@ -66,7 +74,7 @@ Target end state:
   tailnet, and can reach every machine over Tailscale SSH — so
   read-only remote inspection is always available when needed.
 - Local `ansible-playbook` runs from the dev machine are not allowed at
-  all - validate via CI, not local applies.
+  all - validate via the `CI` workflow, not local applies.
 
 ## Money: zero budget
 
@@ -99,9 +107,9 @@ Target end state:
   the entire k3s cluster. `site.yaml` composes one role per concern.
 - `pip install ansible` (community package) already bundles
   `community.general`; there is intentionally no `requirements.yaml`.
-- `ansible-lint` runs on every PR (see CI below) and is the quality
-  gate: new roles/tasks must be lint-clean. If the linter flags new
-  code, fix the code, not the config — no `skip_list` without asking.
+- `yamllint` and `ansible-lint` run on every PR (see CI below) and are
+  the quality gate: new roles/tasks must be lint-clean. If a linter flags
+  new code, fix the code, not the config — no `skip_list` without asking.
 - Alpine Postgres packaging quirk (verified Oct 2026): `setup` moves
   configs to `/etc/postgresql/` (symlink to `postgresql<ver>/`) and
   symlinks them back into the data dir. `lineinfile` follows those
@@ -109,15 +117,30 @@ Target end state:
   server never reads — so manage Postgres configs at their `/etc`
   paths directly, never via the data dir.
 
+## GitOps layout (`k3s/`)
+
+- One directory under `k3s/` = one Argo CD application. The
+  `ApplicationSet` (git directory generator over `k3s/*`) names the app
+  and its namespace after the directory, with automated sync, `prune`,
+  `selfHeal`, and `CreateNamespace`.
+- Each directory is a Kustomization. Helm charts are rendered through
+  `helmCharts` in `kustomization.yaml` (Argo CD runs kustomize with
+  `--enable-helm`). Pin chart, image, and manifest versions.
+- Secrets come from `ExternalSecret`s, never from files in the repo.
+- Argo CD manages its own manifests (`k3s/argocd`).
+
 ## CI/CD (`.github/workflows/`)
 
 - `ci.yaml` (on PRs):
-  - `lint` job: `ansible-lint site.yaml` from `ansible/`.
+  - `lint` job: `yamllint`, `ansible-lint site.yaml` from `ansible/`, and
+    `kustomize build --enable-helm` + `kubeconform` for every `k3s/*`
+    directory.
   - `secrets` job: `gitleaks/gitleaks-action@v3`.
-- `deploy.yaml` (on push to `main`): Tailscale connect
-  → Infisical OIDC secret fetch → `ansible-playbook site.yaml`.
-- Conventions: Keep CI jobs read-only (no Tailscale, no secrets in
-  `ci.yaml`); only `deploy.yaml` touches real infrastructure.
+- `deploy.yaml` (on push to `main`): Infisical OIDC secret fetch →
+  install Ansible → Tailscale connect (OIDC, `tag:deploy`) →
+  `ansible-playbook site.yaml`.
+- Conventions: Keep `ci.yaml` read-only (no Tailscale, no secrets);
+  only `deploy.yaml` touches real infrastructure.
 
 ## Code preferences
 

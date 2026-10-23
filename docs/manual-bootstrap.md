@@ -1,7 +1,5 @@
 # Manual bootstrap
 
-(AI generated after manual troubleshooting)
-
 One-time manual steps run **before** handing hosts over to Ansible / GitHub CI/CD.
 Ansible assumes: user `admin` exists, passwordless privilege escalation works, host is on the network, and Tailscale (+ SSH) is up.
 
@@ -87,7 +85,7 @@ Ansible uses `ansible_become_method: community.general.doas` for this host (see 
 ### 2.2 Community repos + python3
 
 ```sh
-sudo sed -i 's/^#\(.*\/community\)/\1/' /etc/apk/repositories
+doas sed -i 's/^#\(.*\/community\)/\1/' /etc/apk/repositories
 doas apk update
 doas apk add python3
 python3 --version
@@ -99,19 +97,19 @@ Python is required for Ansible.
 ### 2.3 Tailscale
 
 ```sh
-sudo apk update
-sudo apk add tailscale tailscale-openrc
-sudo rc-update add tailscale default
-sudo rc-service tailscale start
-sudo tailscale up --ssh
+doas apk update
+doas apk add tailscale tailscale-openrc
+doas rc-update add tailscale default
+doas rc-service tailscale start
+doas tailscale up --ssh
 ```
 
 Then add tags/settings in the Tailscale console.
 
 ## 3. Hand-off to Ansible
 
-Once the above is done, the rest is automated via `.github/workflows` + `ansible/site.yaml`:
-
-```sh
-ansible-playbook -i ansible/inventory.yaml ansible/site.yaml
-```
+Once the above is done and secrets have been added to infisical, everything else is automated. Merging to `main`
+triggers the `Deploy` workflow (`.github/workflows/deploy.yaml`), which runs
+`ansible/site.yaml`. Ansible configures the machines, creates the k3s
+cluster, and installs Argo CD. From that point Argo CD manages everything
+under `k3s/`.
