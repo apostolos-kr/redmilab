@@ -1,7 +1,5 @@
 # Battery charge voltage limited to 3.9 V (whyred + mido)
 
-(AI generated after manual troubleshooting)
-
 Both phones are always on a charger as k3s nodes. Instead of sitting at ~4.4 V,
 the cell voltage is capped at 3.9 V by lowering `voltage-max-design-microvolt`
 in the battery node of the device tree.
