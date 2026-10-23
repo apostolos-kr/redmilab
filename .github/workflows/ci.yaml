@@ -29,8 +29,13 @@ jobs:
         with:
           kubeconform-version: '0.8.0'
 
-      - name: Validate Kubernetes manifests
-        run: kubeconform -strict -summary -ignore-missing-schemas -kubernetes-version 1.36.5 -ignore-filename-pattern 'values\.yaml$'
+      - name: Build and validate Kustomizations
+        shell: bash
+        run: |
+          for dir in k3s/*/; do
+            kustomize build --enable-helm "$dir" |
+              kubeconform -strict -summary -ignore-missing-schemas -kubernetes-version 1.36.5 -
+          done
 
   secrets:
     runs-on: ubuntu-latest
