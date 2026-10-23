@@ -25,6 +25,15 @@
   register: postgresql_node_ips
   changed_when: false
 
+- name: Allow binding to the Tailscale IP before tailscale0 has it
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: "1"
+    sysctl_file: /etc/sysctl.d/99-nonlocal-bind.conf
+    state: present
+    reload: true
+  notify: Restart postgresql
+
 - name: Listen on localhost and the Tailscale IP only
   ansible.builtin.lineinfile:
     path: /etc/postgresql/postgresql.conf
