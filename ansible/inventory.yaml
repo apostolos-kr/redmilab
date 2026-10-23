@@ -4,14 +4,14 @@ all:
     k3s_nodes:
       hosts:
         xiaomi-whyred:
-          ansible_host: xiaomi-whyred.tailba091b.ts.net
+          ansible_host: "{{ lookup('ansible.builtin.pipe', 'tailscale ip --4 xiaomi-whyred') }}"
           ansible_user: admin
         xiaomi-mido:
-          ansible_host: xiaomi-mido.tailba091b.ts.net
+          ansible_host: "{{ lookup('ansible.builtin.pipe', 'tailscale ip --4 xiaomi-mido') }}"
           ansible_user: admin
     storage:
       hosts:
         netbook:
           ansible_become_method: community.general.doas
-          ansible_host: netbook.tailba091b.ts.net
+          ansible_host: "{{ lookup('ansible.builtin.pipe', 'tailscale ip --4 netbook') }}"
           ansible_user: admin
