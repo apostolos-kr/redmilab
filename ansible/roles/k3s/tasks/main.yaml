@@ -11,11 +11,12 @@
     enabled: false
     state: stopped
 
-- name: Install k3s download dependencies
+- name: Install k3s host dependencies
   ansible.builtin.package:
     name:
       - curl
       - ca-certificates
+      - nfs-utils
     state: present
     update_cache: true
 
