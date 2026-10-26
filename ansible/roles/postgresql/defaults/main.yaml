@@ -1,5 +1,9 @@
 ---
 postgresql_version: "17"
-postgresql_db: k3s
-postgresql_db_user: k3s
-postgresql_db_password: "{{ lookup('env', 'K3S_DB_PASSWORD') }}"
+postgresql_databases:
+  - name: k3s
+    user: k3s
+    password: "{{ lookup('env', 'K3S_DB_PASSWORD') }}"
+  - name: nextcloud
+    user: nextcloud
+    password: "{{ lookup('env', 'NEXTCLOUD_DB_PASSWORD') }}"
