@@ -53,8 +53,6 @@ spec:
                   key: admin_password
             - name: NEXTCLOUD_TRUSTED_DOMAINS
               value: "nextcloud.tailba091b.ts.net"
-            - name: APACHE_DISABLE_REWRITE_IP
-              value: "1"
             - name: TRUSTED_PROXIES
               value: "10.42.0.0/16"
             - name: OVERWRITEPROTOCOL
@@ -69,16 +67,16 @@ spec:
               port: http
               httpHeaders:
                 - name: Host
-                  value: nextcloud
-            failureThreshold: 60
-            periodSeconds: 10
+                  value: nextcloud.tailba091b.ts.net
+            failureThreshold: 15
+            periodSeconds: 60
           readinessProbe:
             httpGet:
               path: /status.php
               port: http
               httpHeaders:
                 - name: Host
-                  value: nextcloud
+                  value: nextcloud.tailba091b.ts.net
             periodSeconds: 30
           livenessProbe:
             httpGet:
@@ -86,7 +84,7 @@ spec:
               port: http
               httpHeaders:
                 - name: Host
-                  value: nextcloud
+                  value: nextcloud.tailba091b.ts.net
             periodSeconds: 60
             failureThreshold: 3
           volumeMounts:
