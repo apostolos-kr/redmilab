@@ -1,0 +1,44 @@
+---
+- name: Install NFS server
+  ansible.builtin.package:
+    name: nfs-utils
+    state: present
+    update_cache: true
+
+- name: Create the NFS root
+  ansible.builtin.file:
+    path: "{{ nfs_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create the NFS data directories
+  ansible.builtin.file:
+    path: "{{ nfs_root }}/{{ item.name }}"
+    state: directory
+    owner: "{{ item.uid }}"
+    group: "{{ item.gid }}"
+    mode: "{{ item.mode }}"
+  loop: "{{ nfs_directories }}"
+
+- name: Export the NFS root to the k3s nodes
+  ansible.builtin.template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload NFS exports
+
+- name: Enable and start rpcbind
+  ansible.builtin.service:
+    name: rpcbind
+    enabled: true
+    state: started
+
+- name: Enable and start NFS
+  ansible.builtin.service:
+    name: nfs
+    enabled: true
+    state: started
