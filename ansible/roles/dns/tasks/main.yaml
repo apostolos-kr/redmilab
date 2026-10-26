@@ -4,24 +4,58 @@
   register: dns_prefs
   changed_when: false
 
+- name: Allow binding to the Tailscale IP before tailscale0 has it
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: "1"
+    sysctl_file: /etc/sysctl.d/99-nonlocal-bind.conf
+    state: present
+    reload: true
+  notify: Restart dnsmasq
+
+- name: Install dnsmasq
+  ansible.builtin.package:
+    name: dnsmasq
+    state: present
+    update_cache: true
+
+- name: Write the dnsmasq config
+  ansible.builtin.template:
+    src: dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+    mode: "0644"
+  notify: Restart dnsmasq
+
+- name: Start dnsmasq after Tailscale
+  ansible.builtin.lineinfile:
+    path: /etc/conf.d/dnsmasq
+    search_string: "rc_need="
+    line: 'rc_need="tailscale"'
+    create: true
+    mode: "0644"
+  notify: Restart dnsmasq
+
+- name: Enable and start dnsmasq
+  ansible.builtin.service:
+    name: dnsmasq
+    enabled: true
+    state: started
+
+- name: Apply pending restarts
+  ansible.builtin.meta: flush_handlers
+
 - name: Set static upstream DNS for resolvconf
   ansible.builtin.lineinfile:
     path: /etc/resolvconf.conf
     search_string: name_servers=
-    line: name_servers='1.1.1.1'
+    line: "name_servers='{{ ansible_host }}'"
     create: true
     mode: "0644"
-  register: dns_resolvconf_conf
+  notify: Rebuild resolv.conf
 
 - name: Disable Tailscale accept-dns
   ansible.builtin.command: tailscale set --accept-dns=false
   when: >-
     '"CorpDNS": true' in dns_prefs.stdout
   changed_when: true
-
-- name: Rebuild resolv.conf from the system resolvers
-  ansible.builtin.command: resolvconf -u
-  when: >-
-    '"CorpDNS": true' in dns_prefs.stdout or
-    dns_resolvconf_conf is changed
-  changed_when: true
+  notify: Rebuild resolv.conf

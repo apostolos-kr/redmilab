@@ -13,18 +13,6 @@
     cmd: rc-service postgresql setup
     creates: "/var/lib/postgresql/{{ postgresql_version }}/data/PG_VERSION"
 
-- name: Get this host's Tailscale IP
-  ansible.builtin.command: tailscale ip -4
-  register: postgresql_db_ip
-  changed_when: false
-
-- name: Get the k3s nodes' Tailscale IPs
-  ansible.builtin.command: tailscale ip -4
-  delegate_to: "{{ item }}"
-  loop: "{{ groups['k3s_nodes'] }}"
-  register: postgresql_node_ips
-  changed_when: false
-
 - name: Allow binding to the Tailscale IP before tailscale0 has it
   ansible.posix.sysctl:
     name: net.ipv4.ip_nonlocal_bind
@@ -38,7 +26,7 @@
   ansible.builtin.lineinfile:
     path: /etc/postgresql/postgresql.conf
     search_string: "listen_addresses ="
-    line: "listen_addresses = '127.0.0.1,{{ postgresql_db_ip.stdout }}'"
+    line: "listen_addresses = '127.0.0.1,{{ ansible_host }}'"
   notify: Restart postgresql
 
 - name: Allow only the k3s nodes to connect
