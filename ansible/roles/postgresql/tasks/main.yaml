@@ -53,23 +53,28 @@
 - name: Apply pending restarts and reloads
   ansible.builtin.meta: flush_handlers
 
-- name: DB password is set
+- name: Database passwords are set
   ansible.builtin.assert:
-    that: postgresql_db_password | length > 0
+    that: item.password | length > 0
     quiet: true
+  loop: "{{ postgresql_databases }}"
+  no_log: true
 
-- name: Create the k3s database role
+- name: Create database roles
   community.postgresql.postgresql_user:
-    name: "{{ postgresql_db_user }}"
-    password: "{{ postgresql_db_password }}"
+    name: "{{ item.user }}"
+    password: "{{ item.password }}"
     encrypted: true
+  loop: "{{ postgresql_databases }}"
   become: true
   become_user: postgres
   no_log: true
 
-- name: Create the k3s database
+- name: Create databases
   community.postgresql.postgresql_db:
-    name: "{{ postgresql_db }}"
-    owner: "{{ postgresql_db_user }}"
+    name: "{{ item.name }}"
+    owner: "{{ item.user }}"
+  loop: "{{ postgresql_databases }}"
   become: true
   become_user: postgres
+  no_log: true
