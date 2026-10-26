@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nextcloud
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 33
+        runAsGroup: 33
+        sysctls:
+          - name: net.ipv4.ip_unprivileged_port_start
+            value: "80"
+      containers:
+        - name: nextcloud
+          image: nextcloud:33.0.10-apache
+          ports:
+            - {name: http, containerPort: 80, protocol: TCP}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: POSTGRES_HOST
+              value: netbook.tailba091b.ts.net
+            - name: POSTGRES_DB
+              value: nextcloud
+            - name: POSTGRES_USER
+              value: nextcloud
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud
+                  key: postgres_password
+            - name: NEXTCLOUD_ADMIN_USER
+              value: admin
+            - name: NEXTCLOUD_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud
+                  key: admin_password
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              value: "nextcloud.tailba091b.ts.net"
+            - name: APACHE_DISABLE_REWRITE_IP
+              value: "1"
+            - name: TRUSTED_PROXIES
+              value: "10.42.0.0/16"
+            - name: OVERWRITEPROTOCOL
+              value: "https"
+            - name: OVERWRITEHOST
+              value: "nextcloud.tailba091b.ts.net"
+            - name: OVERWRITECLIURL
+              value: "https://nextcloud.tailba091b.ts.net"
+          startupProbe:
+            httpGet:
+              path: /status.php
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: nextcloud
+            failureThreshold: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /status.php
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: nextcloud
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /status.php
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: nextcloud
+            periodSeconds: 60
+            failureThreshold: 3
+          volumeMounts:
+            - {name: data, mountPath: /var/www/html}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: nextcloud-data
