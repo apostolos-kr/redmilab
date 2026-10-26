@@ -1,0 +1,4 @@
+# Managed by Ansible
+{% for node in groups['k3s_nodes'] %}
+{{ nfs_root }} {{ hostvars[node].ansible_host }}(rw,sync,no_subtree_check,root_squash)
+{% endfor %}
