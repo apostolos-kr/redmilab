@@ -1,5 +1,5 @@
 # Managed by Ansible
 local   all   postgres   peer
-{% for r in postgresql_node_ips.results %}
-host    {{ postgresql_db }}   {{ postgresql_db_user }}   {{ r.stdout }}/32   scram-sha-256
+{% for node in groups['k3s_nodes'] %}
+host    {{ postgresql_db }}   {{ postgresql_db_user }}   {{ hostvars[node].ansible_host }}/32   scram-sha-256
 {% endfor %}

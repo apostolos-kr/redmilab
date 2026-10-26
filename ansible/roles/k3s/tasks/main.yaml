@@ -26,17 +26,6 @@
       - k3s_db_password | length > 0
     quiet: true
 
-- name: Get this node's Tailscale IP
-  ansible.builtin.command: tailscale ip -4
-  register: k3s_node_ip
-  changed_when: false
-
-- name: Get the datastore's Tailscale IP
-  ansible.builtin.command: tailscale ip -4
-  delegate_to: netbook
-  register: k3s_db_ip
-  changed_when: false
-
 - name: Download the pinned k3s install script
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/k3s-io/k3s/{{ k3s_version }}/install.sh"
