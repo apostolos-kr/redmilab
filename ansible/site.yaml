@@ -5,11 +5,12 @@
   roles:
     - dns
 
-- name: Setup database
+- name: Setup storage
   hosts: storage
   become: true
   roles:
     - postgresql
+    - nfs
 
 - name: Power fixes
   hosts: xiaomi-whyred
