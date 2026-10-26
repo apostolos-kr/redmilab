@@ -1,10 +1,9 @@
 # Managed by Ansible
 token: "{{ k3s_token }}"
-datastore-endpoint: "postgres://{{ k3s_db_user }}:{{ k3s_db_password }}@{{ k3s_db_ip.stdout }}:5432/{{ k3s_db_name }}?sslmode=disable"
-node-ip: {{ k3s_node_ip.stdout }}
-advertise-address: {{ k3s_node_ip.stdout }}
+datastore-endpoint: "postgres://{{ k3s_db_user }}:{{ k3s_db_password }}@{{ hostvars['netbook'].ansible_host }}:5432/{{ k3s_db_name }}?sslmode=disable"
+node-ip: {{ ansible_host }}
+advertise-address: {{ ansible_host }}
 tls-san:
-  - {{ k3s_node_ip.stdout }}
   - {{ ansible_host }}
 flannel-iface: tailscale0
 secrets-encryption: true
