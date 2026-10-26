@@ -68,7 +68,7 @@ spec:
               httpHeaders:
                 - name: Host
                   value: nextcloud.tailba091b.ts.net
-            failureThreshold: 15
+            failureThreshold: 120
             periodSeconds: 60
           readinessProbe:
             httpGet:
