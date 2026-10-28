@@ -1,9 +1,4 @@
 ---
-- name: Restart dnsmasq
-  ansible.builtin.service:
-    name: dnsmasq
-    state: restarted
-
 - name: Rebuild resolv.conf
   ansible.builtin.command: resolvconf -u
   changed_when: true

@@ -80,3 +80,13 @@
   retries: 5
   delay: 30
   changed_when: false
+
+- name: Apply the CoreDNS tailnet hosts
+  ansible.builtin.command: /usr/local/bin/k3s kubectl apply -f -
+  args:
+    stdin: "{{ lookup('ansible.builtin.template', 'coredns-custom.yaml.j2') }}"
+  register: k3s_coredns_custom
+  changed_when: "'unchanged' not in k3s_coredns_custom.stdout"
+  notify:
+    - Restart CoreDNS
+    - Wait for CoreDNS
