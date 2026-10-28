@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  tailnet.server: |
+    tailba091b.ts.net:53 {
+      errors
+      hosts {
+        ttl 60
+{% for host in groups['all'] %}
+        {{ hostvars[host].ansible_host }} {{ host }}.tailba091b.ts.net
+{% endfor %}
+        fallthrough
+      }
+      forward . 8.8.8.8
+    }
