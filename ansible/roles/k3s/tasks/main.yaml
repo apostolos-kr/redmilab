@@ -87,13 +87,6 @@
     stdin: "{{ lookup('ansible.builtin.template', 'coredns-custom.yaml.j2') }}"
   register: k3s_coredns_custom
   changed_when: "'unchanged' not in k3s_coredns_custom.stdout"
-
-- name: Restart CoreDNS if its config changed
-  ansible.builtin.command: /usr/local/bin/k3s kubectl -n kube-system rollout restart deployment/coredns
-  when: k3s_coredns_custom.changed
-  changed_when: true
-
-- name: Wait for CoreDNS
-  ansible.builtin.command: /usr/local/bin/k3s kubectl -n kube-system rollout status deployment/coredns --timeout=100s
-  when: k3s_coredns_custom.changed
-  changed_when: false
+  notify:
+    - Restart CoreDNS
+    - Wait for CoreDNS
