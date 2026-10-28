@@ -57,7 +57,7 @@
   ansible.builtin.lineinfile:
     path: /etc/resolvconf.conf
     search_string: deny_interfaces=
-    line: deny_interfaces='wlan0'
+    line: deny_interfaces='NetworkManager'
     create: true
     mode: "0644"
   notify: Rebuild resolv.conf
