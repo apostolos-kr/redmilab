@@ -24,8 +24,6 @@
     content: |
       add rule inet filter input ip saddr {{ firewall_k3s_pod_network }} tcp dport 6443 accept
       add rule inet filter input ip saddr {{ firewall_k3s_pod_network }} tcp dport 10250 accept
-      add rule inet filter input ip saddr {{ firewall_k3s_pod_network }} udp dport 53 accept
-      add rule inet filter input ip saddr {{ firewall_k3s_pod_network }} tcp dport 53 accept
       add rule inet filter forward ip saddr {{ firewall_k3s_pod_network }} accept
       add rule inet filter forward ip daddr {{ firewall_k3s_pod_network }} accept
       add rule inet filter input ip saddr {{ firewall_tailscale_network }} tcp dport 6443 accept

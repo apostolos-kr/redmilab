@@ -8,7 +8,7 @@ dns:
     - 0.0.0.0
   ratelimit: 0
   upstream_dns:
-    - https://cloudflare-dns.com/dns-query
+    - https://dns.google/dns-query
 
 querylog:
   interval: 2160h
