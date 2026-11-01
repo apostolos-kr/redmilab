@@ -47,6 +47,13 @@
   register: k3s_check_config
   changed_when: false
 
+- name: Create resolv.conf for k3s
+  ansible.builtin.copy:
+    dest: /etc/rancher/k3s/resolv.conf
+    content: "nameserver 100.100.100.100\n"
+    mode: "0644"
+  notify: Restart k3s
+
 - name: Write the k3s config
   ansible.builtin.template:
     src: config.yaml.j2
