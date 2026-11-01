@@ -1,11 +1,11 @@
 ---
 - name: Read Tailscale preferences
   ansible.builtin.command: tailscale debug prefs
-  register: tailscale_prefs
+  register: dns_prefs
   changed_when: false
 
 - name: Enable Tailscale accept-dns
   ansible.builtin.command: tailscale set --accept-dns=true
   when: >-
-    '"CorpDNS": false' in tailscale_prefs.stdout
+    '"CorpDNS": false' in dns_prefs.stdout
   changed_when: true
