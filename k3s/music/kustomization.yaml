@@ -1,0 +1,16 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: music
+
+resources:
+  - music-library-persistent-volume.yaml
+  - music-library-persistent-volume-claim.yaml
+  - navidrome-persistent-volume-claim.yaml
+  - navidrome-deployment.yaml
+  - navidrome-service.yaml
+  - navidrome-ingress.yaml
+  - mornye-persistent-volume-claim.yaml
+  - mornye-deployment.yaml
+  - mornye-service.yaml
+  - mornye-ingress.yaml
