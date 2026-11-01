@@ -5,3 +5,7 @@ nfs_directories:
     uid: 33
     gid: 33
     mode: "0770"
+  - name: music
+    uid: 1000
+    gid: 1000
+    mode: "0755"

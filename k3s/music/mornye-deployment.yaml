@@ -1,0 +1,74 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mornye
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mornye
+  template:
+    metadata:
+      labels:
+        app: mornye
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: xiaomi-whyred
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: mornye
+          image: ghcr.io/mornyeapp/mornye-python:sha-db37845
+          args: ["--web", "--host", "0.0.0.0", "--port", "8000"]
+          ports:
+            - {name: http, containerPort: 8000, protocol: TCP}
+          env:
+            - name: MORNYE_REGISTRIES
+              value: ""
+            - name: MORNYE_DOWNLOAD_DIR
+              value: /music
+            - name: MORNYE_DATA_DIR
+              value: /home/mornye/.mornye
+            - name: TS_MAX_CONCURRENT_BROWSERS
+              value: "1"
+            - name: MORNYE_PROGRESS_BARS
+              value: "0"
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 60
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /home/mornye/.mornye
+            - name: music
+              mountPath: /music
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mornye-data
+        - name: music
+          persistentVolumeClaim:
+            claimName: music-library
+        - name: shm
+          emptyDir:
+            medium: Memory
