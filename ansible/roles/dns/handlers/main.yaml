@@ -1,4 +1,0 @@
----
-- name: Rebuild resolv.conf
-  ansible.builtin.command: resolvconf -u
-  changed_when: true

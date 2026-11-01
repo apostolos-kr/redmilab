@@ -60,7 +60,7 @@ All machines join a Tailscale network. Ansible, the deploy pipeline, and cluster
 
 ## Ansible
 
-Ansible configures the machines (packages, DNS, firewall, services, device-specific fixes) and builds the k3s cluster on top of them. Its job ends once the cluster is up and Argo CD is installed and pointed at this repo. From there, GitOps takes over.
+Ansible configures the machines (packages, firewall, services, device-specific fixes) and builds the k3s cluster on top of them. Its job ends once the cluster is up and Argo CD is installed and pointed at this repo. From there, GitOps takes over.
 
 ## GitOps
 
@@ -69,7 +69,6 @@ Argo CD manages everything in `k3s/`, including itself. Current workloads:
 - **Argo CD**: the GitOps controller and the ApplicationSet that deploys the rest
 - **External Secrets Operator**: syncs secrets from Infisical into the cluster
 - **Tailscale operator**: Tailscale network ingress and service exposure
-- **AdGuard Home**: network-wide DNS filtering
 
 ## Secrets management
 

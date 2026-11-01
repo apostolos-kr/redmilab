@@ -1,42 +1,11 @@
 ---
 - name: Read Tailscale preferences
   ansible.builtin.command: tailscale debug prefs
-  register: dns_prefs
+  register: tailscale_prefs
   changed_when: false
 
-- name: Set static upstream DNS for resolvconf
-  ansible.builtin.lineinfile:
-    path: /etc/resolvconf.conf
-    search_string: name_servers=
-    line: "name_servers='8.8.8.8'"
-    create: true
-    mode: "0644"
-  notify: Rebuild resolv.conf
-
-- name: Ignore DHCP-provided DNS servers
-  ansible.builtin.lineinfile:
-    path: /etc/resolvconf.conf
-    search_string: deny_interfaces=
-    line: deny_interfaces='NetworkManager'
-    create: true
-    mode: "0644"
-  notify: Rebuild resolv.conf
-
-- name: Disable Tailscale accept-dns
-  ansible.builtin.command: tailscale set --accept-dns=false
+- name: Enable Tailscale accept-dns
+  ansible.builtin.command: tailscale set --accept-dns=true
   when: >-
-    '"CorpDNS": true' in dns_prefs.stdout
+    '"CorpDNS": false' in tailscale_prefs.stdout
   changed_when: true
-  notify: Rebuild resolv.conf
-
-- name: Add tailnet hosts entries
-  ansible.builtin.blockinfile:
-    path: /etc/hosts
-    marker: "# {mark} ANSIBLE MANAGED TAILNET HOSTS"
-    insertbefore: BOF
-    create: true
-    mode: "0644"
-    block: |
-      {% for host in groups['all'] %}
-      {{ hostvars[host].ansible_host }} {{ host }} {{ host }}.tailba091b.ts.net
-      {% endfor %}
