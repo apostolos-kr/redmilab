@@ -7,6 +7,7 @@ tls-san:
   - {{ ansible_host }}
 flannel-iface: tailscale0
 secrets-encryption: true
+resolv-conf: /etc/rancher/k3s/resolv.conf
 disable:
   - traefik
   - servicelb
