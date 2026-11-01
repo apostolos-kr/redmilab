@@ -31,14 +31,12 @@ BATT_CURRENT="$(cat "$BATT/current_now" 2>/dev/null)"
 POWER_MW="$(( (BATT_VOLTAGE * BATT_CURRENT) / 1000000000 ))"
 VOLT_MV="$((BATT_VOLTAGE / 1000))"
 
-if [ "$TEMP_C" -gt 40 ] 2>/dev/null; then TEMP_COLOR="$YELLOW"; else TEMP_COLOR="$RESET"; fi
-
 # ---- Gather CPU from busybox top ----
 TOP_OUT="$(top -bn1)"
 
 # ---- Pods hosted on this node ----
 PODS="$(/usr/local/bin/k3s kubectl get pods --request-timeout=5s -A --field-selector "spec.nodeName=$(uname -n)" \
-    -o custom-columns=':metadata.namespace,:metadata.name,:status.phase' --no-headers 2>/dev/null)"
+    -o custom-columns=':metadata.namespace,:metadata.name' --no-headers 2>/dev/null)"
 
 # ---- Gather memory from /proc/meminfo ----
 MEM_TOTAL="$(grep '^MemTotal:' /proc/meminfo | cut -d: -f2 | tr -d ' kB')"
@@ -59,7 +57,7 @@ CPU_PCT=$((100 - CPU_IDLE))
 
     printf "${GREEN}%-11s${RESET} %s mV (%s%%)\n" "Battery:" "$VOLT_MV" "$CAPACITY"
     printf "${GREEN}%-11s${RESET} %d mW\n" "Power:" "$POWER_MW"
-    printf "${GREEN}%-11s${TEMP_COLOR} %s C\n\n" "Temp:" "$TEMP_C"
+    printf "${GREEN}%-11s${RESET} %s C\n\n" "Temp:" "$TEMP_C"
 
     printf "${PINK}%-11s${RESET} %s%%\n" "CPU:" "$CPU_PCT"
     printf "${PINK}%-11s${RESET} %s%%\n\n" "RAM:" "$MEM_PCT"
