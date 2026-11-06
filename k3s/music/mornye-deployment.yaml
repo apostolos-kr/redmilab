@@ -24,7 +24,7 @@ spec:
       containers:
         - name: mornye
           image: ghcr.io/mornyeapp/mornye-python:sha-db37845
-          args: ["--web", "--host", "0.0.0.0", "--port", "8000"]
+          args: ["--web", "--host", "0.0.0.0", "--port", "8000", "--log-level", "DEBUG"]
           ports:
             - {name: http, containerPort: 8000, protocol: TCP}
           env:
