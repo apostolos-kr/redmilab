@@ -10,7 +10,7 @@ resources:
   - navidrome-deployment.yaml
   - navidrome-service.yaml
   - navidrome-ingress.yaml
-  - mornye-persistent-volume-claim.yaml
-  - mornye-deployment.yaml
-  - mornye-service.yaml
-  - mornye-ingress.yaml
+  - musicgrabber-persistent-volume-claim.yaml
+  - musicgrabber-deployment.yaml
+  - musicgrabber-service.yaml
+  - musicgrabber-ingress.yaml
