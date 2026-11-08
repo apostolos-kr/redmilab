@@ -33,6 +33,8 @@ spec:
               value: /data/music_grabber.db
             - name: ENABLE_MUSICBRAINZ
               value: "true"
+            - name: MONOCHROME_API_URL
+              value: https://monochrome-api.samidy.com
           startupProbe:
             httpGet:
               path: /

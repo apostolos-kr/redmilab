@@ -38,6 +38,8 @@ spec:
               value: /data
             - name: ND_SCANNER_SCHEDULE
               value: "@every 15m"
+            - name: ND_SUBSONIC_DEFAULTREPORTREALPATH
+              value: "true"
           startupProbe:
             httpGet:
               path: /ping
