@@ -29,7 +29,8 @@ spec:
             - {name: http, containerPort: 8000, protocol: TCP}
           env:
             - name: MORNYE_REGISTRIES
-              value: "https://raw.githubusercontent.com/mornyeapp/Mornye-Extension/main/registry.json,https://raw.githubusercontent.com/mornyeapp/Mornye-Extension/main/registry-python.json"
+              value: "https://raw.githubusercontent.com/mornyeapp/Mornye-Extension/main/registry.json,\
+                https://raw.githubusercontent.com/mornyeapp/Mornye-Extension/main/registry-python.json"
             - name: MORNYE_DOWNLOAD_DIR
               value: /music
             - name: TS_MAX_CONCURRENT_BROWSERS
