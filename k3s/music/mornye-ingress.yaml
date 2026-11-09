@@ -2,14 +2,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: musicgrabber
+  name: mornye
 spec:
   ingressClassName: tailscale
   defaultBackend:
     service:
-      name: musicgrabber
+      name: mornye
       port:
-        number: 8080
+        number: 8000
   tls:
     - hosts:
-        - musicgrabber
+        - mornye
