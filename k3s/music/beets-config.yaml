@@ -1,5 +1,4 @@
 ---
 directory: /music/clean
 library: /config/beets/library.db
-import:
-  move: true
+
