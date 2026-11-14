@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: picard
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: picard
+  template:
+    metadata:
+      labels:
+        app: picard
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: xiaomi-whyred
+      containers:
+        - name: picard
+          image: jlesage/musicbrainz-picard:v26.11.1
+          ports:
+            - {name: http, containerPort: 5800, protocol: TCP}
+          env:
+            - name: USER_ID
+              value: "1000"
+            - name: GROUP_ID
+              value: "1000"
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 30
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 60
+            failureThreshold: 3
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: music
+              mountPath: /storage
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: picard-config
+        - name: music
+          persistentVolumeClaim:
+            claimName: music-library

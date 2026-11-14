@@ -14,3 +14,7 @@ resources:
   - mornye-deployment.yaml
   - mornye-service.yaml
   - mornye-ingress.yaml
+  - picard-persistent-volume-claim.yaml
+  - picard-deployment.yaml
+  - picard-service.yaml
+  - picard-ingress.yaml
