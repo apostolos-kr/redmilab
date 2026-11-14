@@ -32,7 +32,7 @@ spec:
               value: "https://raw.githubusercontent.com/mornyeapp/Mornye-Extension/main/registry.json,\
                 https://raw.githubusercontent.com/mornyeapp/Mornye-Extension/main/registry-python.json"
             - name: MORNYE_DOWNLOAD_DIR
-              value: /music
+              value: /music/inbox
             - name: TS_MAX_CONCURRENT_BROWSERS
               value: "1"
             - name: MORNYE_PROGRESS_BARS

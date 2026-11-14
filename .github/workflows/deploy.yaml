@@ -3,6 +3,9 @@ name: Deploy
 on:
   push:
     branches: [main]
+    paths:
+      - '.github/**'
+      - 'ansible/**'
 
 permissions:
   id-token: write

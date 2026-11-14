@@ -2,14 +2,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: picard
+  name: beets
 spec:
   ingressClassName: tailscale
   defaultBackend:
     service:
-      name: picard
+      name: beets
       port:
-        number: 5800
+        number: 5001
   tls:
     - hosts:
-        - picard
+        - beets

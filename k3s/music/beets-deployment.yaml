@@ -2,27 +2,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: picard
+  name: beets
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: picard
+      app: beets
   template:
     metadata:
       labels:
-        app: picard
+        app: beets
     spec:
       nodeSelector:
         kubernetes.io/hostname: xiaomi-whyred
+      initContainers:
+        - name: create-music-dirs
+          image: busybox:1.37.0
+          command: ["mkdir", "-p", "/music/inbox", "/music/clean"]
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          volumeMounts:
+            - name: music
+              mountPath: /music
       containers:
-        - name: picard
-          image: jlesage/musicbrainz-picard:v26.11.1
+        - name: beets
+          image: pspitzner/beets-flask:v2.0.0-rc5
           ports:
-            - {name: http, containerPort: 5800, protocol: TCP}
+            - {name: http, containerPort: 5001, protocol: TCP}
           env:
+            - name: TZ
+              value: Europe/Athens
             - name: USER_ID
               value: "1000"
             - name: GROUP_ID
@@ -44,12 +56,21 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
+            - name: settings
+              mountPath: /config/beets-flask/config.yaml
+              subPath: beets-flask.yaml
+            - name: settings
+              mountPath: /config/beets/config.yaml
+              subPath: beets.yaml
             - name: music
-              mountPath: /storage
+              mountPath: /music
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: picard-config
+            claimName: beets-config
+        - name: settings
+          configMap:
+            name: beets-settings
         - name: music
           persistentVolumeClaim:
             claimName: music-library
