@@ -1,0 +1,8 @@
+---
+gui:
+  inbox:
+    folders:
+      Inbox:
+        name: Inbox
+        path: /music/inbox
+        autotag: preview

@@ -33,7 +33,7 @@ spec:
                 - ALL
           env:
             - name: ND_MUSICFOLDER
-              value: /music
+              value: /music/clean
             - name: ND_DATAFOLDER
               value: /data
             - name: ND_SCANNER_SCHEDULE
