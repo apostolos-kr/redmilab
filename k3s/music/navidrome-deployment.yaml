@@ -33,7 +33,9 @@ spec:
                 - ALL
           env:
             - name: ND_MUSICFOLDER
-              value: /music/clean
+              value: /music
+            - name: ND_PID_ALBUM
+              value: folder
             - name: ND_DATAFOLDER
               value: /data
             - name: ND_SCANNER_SCHEDULE
