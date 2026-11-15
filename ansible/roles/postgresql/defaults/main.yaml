@@ -7,3 +7,6 @@ postgresql_databases:
   - name: nextcloud
     user: nextcloud
     password: "{{ lookup('env', 'NEXTCLOUD_DB_PASSWORD') }}"
+  - name: vaultwarden
+    user: vaultwarden
+    password: "{{ lookup('env', 'VAULTWARDEN_DB_PASSWORD') }}"
