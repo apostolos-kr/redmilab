@@ -68,6 +68,7 @@ spec:
               httpHeaders:
                 - name: Host
                   value: nextcloud.tailba091b.ts.net
+            timeoutSeconds: 5
             failureThreshold: 120
             periodSeconds: 60
           readinessProbe:
@@ -77,6 +78,7 @@ spec:
               httpHeaders:
                 - name: Host
                   value: nextcloud.tailba091b.ts.net
+            timeoutSeconds: 5
             periodSeconds: 30
           livenessProbe:
             httpGet:
@@ -85,8 +87,9 @@ spec:
               httpHeaders:
                 - name: Host
                   value: nextcloud.tailba091b.ts.net
+            timeoutSeconds: 5
             periodSeconds: 60
-            failureThreshold: 3
+            failureThreshold: 6
           volumeMounts:
             - {name: data, mountPath: /var/www/html}
       volumes:
