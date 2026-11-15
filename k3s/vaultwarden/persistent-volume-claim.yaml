@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: music-library
+  name: vaultwarden-data
 spec:
   accessModes:
     - ReadWriteMany
   storageClassName: ""
-  volumeName: music-library
+  volumeName: vaultwarden-data
   resources:
     requests:
-      storage: 100Gi
+      storage: 1Gi

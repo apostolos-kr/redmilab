@@ -69,6 +69,8 @@ Argo CD manages everything in `k3s/`, including itself. Current workloads:
 - **Argo CD**: the GitOps controller and the ApplicationSet that deploys the rest
 - **External Secrets Operator**: syncs secrets from Infisical into the cluster
 - **Tailscale operator**: Tailscale network ingress and service exposure
+- **Nextcloud**: self-hosted file sync and share, backed by the netbook's NFS share and PostgreSQL
+- **Vaultwarden**: self-hosted password manager, backed by the netbook's PostgreSQL
 
 ## Secrets management
 
@@ -83,6 +85,5 @@ Infisical is the single source of truth for secrets, used for both the deploy pi
 
 - [ ] **Backups** of the k3s database and other important files
 - [ ] **File sharing** (Syncthing, NFS, or similar)
-- [ ] **Media streaming** with Jellyfin or Navidrome
 - [ ] **Monitoring** with Prometheus and Grafana
 - [ ] **AI-assisted monitoring** with Hermes

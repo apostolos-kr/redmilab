@@ -2,14 +2,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: navidrome
+  name: vaultwarden
 spec:
   ingressClassName: tailscale
   defaultBackend:
     service:
-      name: navidrome
+      name: vaultwarden
       port:
-        number: 4533
+        number: 80
   tls:
     - hosts:
-        - navidrome
+        - vaultwarden
